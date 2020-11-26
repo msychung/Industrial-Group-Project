@@ -16,7 +16,10 @@ first, read the sample in
 scan_gs_sample = np.load('sample_1_scan.npy')
 cropped_sample = scan_gs_sample[1000:3000,1000:3000] #just for faster runtime with the smaller sample 
 
-
+'''
+Start with a Guassian Blur as the samples are really high definition
+'''
+sample_blur = ndimage.gaussian_filter(cropped_sample, 15)
 
 '''
 then increase the contrast
