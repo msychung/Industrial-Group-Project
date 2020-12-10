@@ -1,5 +1,3 @@
-
-
 import math
 import skimage
 from skimage import io, viewer, color, data, filters, feature, morphology, exposure
@@ -7,7 +5,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt 
 import numpy as np
 from scipy import ndimage
-from scipy.signal import argrelextrema
+from scipy.signal import argrelextrema, lfilter, find_peaks_cwt, find_peaks, peak_prominences
 from scipy import fftpack
 
 '''
@@ -146,16 +144,58 @@ class linefinder:
         
         return max_positions
 
+    def cwt(self, view_plot=True):
+        x = linefinder.blur_sample_gauss(self,False)
+        widths = (np.arange(1,np.size(x[200])+1, 1))
+        peak_positions = find_peaks_cwt(x[200], widths)
+
+        if view_plot == True:
+            fig, ax = plt.subplots(ncols=3, nrows=1)
+            fig.suptitle('Detecting lines though CWT transform')
+            ax[0].imshow(x, cmap='gray')
+            ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
+
+            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
+
+            ax[2].imshow(self.original, cmap='gray')
+            ax[2].vlines(peak_positions, color = 'red', ymin=0, ymax=500, linewidth=1)
+            ax[2].set(xlabel='', ylabel='', title='Detected lines')
+
+            plt.show()
+        
+    def scipy_peaks(self, view_plot=True):
+        x = linefinder.blur_sample_gauss(self, False)
+        peak_positions = find_peaks(x[200])
+
+        if view_plot == True:
+            fig, ax = plt.subplots(ncols=3, nrows=1)
+            fig.suptitle('Detecting lines though Scipy find_peaks')
+            ax[0].imshow(x, cmap='gray')
+            ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
+            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
+
+            ax[2].imshow(self.original, cmap='gray')
+            ax[2].vlines(x=peak_positions[0], color = 'red', ymin=0, ymax=len(x), linewidth=1)
+            ax[2].set(xlabel='', ylabel='', title='Detected lines')
+
+            plt.show()
+
+        return peak_positions[0]
 
 
+'''
+    def severity(self,baseline,view_plot= True):
+        x = linefinder.blur_sample_gauss(False)
+        y = scipy_peaks(False)
+        prominences = peak_prominences(x,y)
+        mean_prominence = np.mean(prominces)
+        #need to work out how this can be calculated out_of_10 = 
+        if mean_prominence >= baseline:
+            print('Sample has failed, lines are too prominent for sample to be used')
+        else:
+            print('Sample has passed. Severity of lines is {}, which equates to {} out of 10'.format(mean_prominence, out_of_10))
 
 
-
-
-
-
-
-
-
-
-
+'''
