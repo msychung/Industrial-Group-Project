@@ -16,9 +16,12 @@ class linefinder:
     '''
     A class of different methods to hopefully find the lines in a sample
     '''
-    def __init__(self, original, sigma):
+    def __init__(self, original, sigma, row):
         self.original = original
         self.sigma = sigma
+        self.row = row
+        if row > np.size(original):
+            raise ValueError('Row number index out of range - please enter a row number within the bounds of the original sample')
     def blur_sample_gauss(self, view_plot):
         '''
         Inputs: 
@@ -44,11 +47,11 @@ class linefinder:
             ax[0][1].imshow(sample_blur, cmap='gray')
             ax[0][1].set(xlabel='', ylabel='', title = 'Blurred Version, sigma ={}'.format(self.sigma))
 
-            ax[1][0].plot(np.arange(0,np.size(self.original[200]) ,1), self.original[200])
+            ax[1][0].plot(np.arange(0,np.size(self.original[self.row]) ,1), self.original[self.row])
             ax[1][0].set(xlabel='Pixel Number', ylabel='Pixel Value', title='Values along 200th row \n for the original sample')
 
 
-            ax[1][1].plot(np.arange(0,np.size(sample_blur[200]), 1), sample_blur[200])
+            ax[1][1].plot(np.arange(0,np.size(sample_blur[self.row]), 1), sample_blur[self.row])
             ax[1][1].set(xlabel='Pixel Number', ylabel='Pixel Value', title='Values along 200th row \n for the blurred sample')
 
             plt.show()
@@ -68,7 +71,7 @@ class linefinder:
         returns the positions of the maximum positions according the gaussian blur method 
         '''
         x = linefinder.blur_sample_gauss(self,view_plot = False)
-        max_positions = argrelextrema(x[200],np.greater)
+        max_positions = argrelextrema(x[self.row],np.greater)
         
         if view_plot == True:
             fig, ax = plt.subplots(ncols=3, nrows=1)
@@ -76,7 +79,7 @@ class linefinder:
             ax[0].imshow(x, cmap='gray')
             ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
 
-            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
             ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
 
             ax[2].imshow(self.original, cmap='gray')
@@ -100,7 +103,7 @@ class linefinder:
         array of the fourier transform of the 200th row of the blurred sample 
         '''
         x = linefinder.blur_sample_gauss(self, view_plot=False)
-        sample_FT = fftpack.fft(x[200])
+        sample_FT = fftpack.fft(x[self.row])
         
         FTabs = np.abs(sample_FT)
 
@@ -110,7 +113,7 @@ class linefinder:
             ax[0].imshow(x, cmap='gray')
             ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
 
-            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
             ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
 
             ax[2].plot(np.arange(0,np.size(np.real(sample_FT))-1, 1), np.real(sample_FT)[1:])
@@ -133,7 +136,7 @@ class linefinder:
             ax[0].imshow(x, cmap='gray')
             ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
 
-            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
             ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
 
             ax[2].imshow(self.original, cmap='gray')
@@ -146,8 +149,8 @@ class linefinder:
 
     def cwt(self, view_plot=True):
         x = linefinder.blur_sample_gauss(self,False)
-        widths = (np.arange(1,np.size(x[200])+1, 1))
-        peak_positions = find_peaks_cwt(x[200], widths)
+        widths = (np.arange(1,np.size(x[self.row])+1, 1))
+        peak_positions = find_peaks_cwt(x[self.row], widths)
 
         if view_plot == True:
             fig, ax = plt.subplots(ncols=3, nrows=1)
@@ -155,7 +158,7 @@ class linefinder:
             ax[0].imshow(x, cmap='gray')
             ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
 
-            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
             ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
 
             ax[2].imshow(self.original, cmap='gray')
@@ -166,14 +169,14 @@ class linefinder:
         
     def scipy_peaks(self, view_plot=True):
         x = linefinder.blur_sample_gauss(self, False)
-        peak_positions = find_peaks(x[200])
+        peak_positions = find_peaks(x[self.row])
 
         if view_plot == True:
             fig, ax = plt.subplots(ncols=3, nrows=1)
             fig.suptitle('Detecting lines though Scipy find_peaks')
             ax[0].imshow(x, cmap='gray')
             ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
-            ax[1].plot(np.arange(0,np.size(x[200]), 1), x[200])
+            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
             ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
 
             ax[2].imshow(self.original, cmap='gray')
@@ -185,7 +188,34 @@ class linefinder:
         return peak_positions[0]
 
 
+
+    def find_prominences(self, view_plot = True):
+        x = linefinder.blur_sample_gauss(self, False)
+        y = linefinder.scipy_peaks(self, False)
+        row_looking_at = x[self.row]
+        prominences = peak_prominences(row_looking_at,y)[0] #this zero is needed to return the array of the prominences, excluding extra information
+        if view_plot == True: 
+            heights = row_looking_at[y] - prominences
+            fig, ax = plt.subplots(ncols=3, nrows=1)
+            fig.suptitle('Finding Peak Prominences')
+            ax[0].imshow(x, cmap='gray')
+            ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
+            ax[1].plot(np.arange(0,np.size(row_looking_at), 1), row_looking_at)
+            ax[1].set(xlabel='', ylabel='', title = 'Values along 200th row \n for the blurred sample')
+
+            ax[2].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
+            ax[2].plot(y, row_looking_at[y], "x")
+            ax[2].vlines(x=y, color = 'red', ymin=heights, ymax=row_looking_at[y], linewidth=1)
+            ax[2].set(xlabel='', ylabel='', title='Peak Prominences')
+
+            plt.show()
+
+        return prominences
+
+
+
 '''
+
     def severity(self,baseline,view_plot= True):
         x = linefinder.blur_sample_gauss(False)
         y = scipy_peaks(False)
