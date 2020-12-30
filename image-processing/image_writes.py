@@ -20,7 +20,7 @@ while i <= int_files_to_load:
     filename = str(filename_input)
     file = scans_folder / filename
     if not file.exists():
-        print('Sorry, this file does not exist, please retype,  including spaces the file suffix, e.g. .jpeg')
+        print('Sorry, this file does not exist, please retype including spaces and  the file suffix, e.g. .jpeg')
         continue
     else:
         scans.append(file)
