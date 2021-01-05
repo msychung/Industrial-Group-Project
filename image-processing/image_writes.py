@@ -4,16 +4,29 @@ from skimage import io, viewer, color, data, filters, feature
 from pathlib import Path
 import matplotlib.pyplot as plt 
 import numpy as np
+import os 
+from pathlib import Path
 
-bird ="images\Tester_bird.jpg"
-Sample2 = "images\Sample 2; 600dpi.jpeg"
+scans = []
+scans_folder = Path("scans_75dpi") #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
 
-scan_bird = io.imread(fname=bird)
-scan_gs_bird = io.imread(fname=bird, as_gray=True)
 
-scan_Sample2 = io.imread(fname=Sample2)
-scan_gs_Sample2 = io.imread(fname=Sample2, as_gray=True)
+files_to_load = input('How many files would you like to scan in')
+int_files_to_load = int(files_to_load)
 
-np.save('scan_gs_bird.npy', scan_gs_bird, allow_pickle= True)
-np.save('scan_gs_Sample2.npy', scan_gs_Sample2, allow_pickle=True)
+i = 1
+while i <= int_files_to_load:
+    filename_input = input('please type the name of file number {}'.format(i))
+    filename = str(filename_input)
+    file = scans_folder / filename
+    if not file.exists():
+        print('Sorry, this file does not exist, please retype including spaces and  the file suffix, e.g. .jpeg')
+        continue
+    else:
+        scans.append(file)
+        print('file added')
+        i += 1 
 
+for scan in range(len(scans)):
+    file = io.imread(fname=scans[scan], as_gray=True)
+    np.save('{}.npy'.format(scans[scan]), file, allow_pickle=True) #would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 

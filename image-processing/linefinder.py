@@ -312,24 +312,27 @@ class linefinder:
         prominences = None #these are set to none in case they aren't set in the inputs by the user 
         min_distance = None 
 
-        if isinstance(min_promineneces, bool): #if no value is given, then it takes prominences that are greater than the mean only 
+        if isinstance(min_promineneces, bool):
+            if min_promineneces: #if no value is given, then it takes prominences that are greater than the mean only 
             #it is probably sensible to also add a minimum prominence here, but more research is needed to find what this minimum should be 
-            mean_prominence = np.mean(prominences_no_exclusions)
-            prominences = prominences_no_exclusions[prominences_no_exclusions>=mean_prominence]
+                mean_prominence = np.mean(prominences_no_exclusions)
+                prominences = prominences_no_exclusions[prominences_no_exclusions>=mean_prominence]
+                print(prominences)
             
 
         elif isinstance(min_promineneces, int): #if a vlue is given, then that value is used 
             prominences = min_promineneces
 
         if isinstance(distance, bool):
-            min_distance = len(blurred[0])/100 #if no value is given, defaults to a hundredth of the total width of the sample 
+            if distance:
+                min_distance = len(blurred[0])/100 #if no value is given, defaults to a hundredth of the total width of the sample 
 
         elif isinstance(distance, int):
             min_distance = distance
 
-        peaks = find_peaks(blurred, distance=min_distance, prominence=prominences)[0] #this zero has to be here so only the peak positions are returned and not the extra information
+        peaks = find_peaks(blurred[self.row], distance=min_distance, prominence=prominences)[0] #this zero has to be here so only the peak positions are returned and not the extra information
         
-        if peaks == peaks_no_exclusions:
+        if np.array_equal(peaks, peaks_no_exclusions):
             print('Note: the discovered peaks are the same with or without the specified exclusions')
 
         if view_plot == True: 
@@ -346,14 +349,14 @@ class linefinder:
             ax[1][0].plot(np.arange(0,np.size(row_looking_at), 1), row_looking_at)
             ax[1][0].set(xlabel='', ylabel='', title = 'Values along row number {} \n for the blurred sample'.format(self.row))
 
-            ax[0][1].plot(np.arange(0,np.size(row_looking_at), 1), row_looking_at)
-            ax[0][1].plot(peaks, row_looking_at[peaks], "x")
-            ax[0][1].vlines(x=peaks, color = 'red', ymin=heights, ymax=row_looking_at[peaks], linewidth=1)
-            ax[0][1].set(xlabel='', ylabel='', title='Peaks')
+            ax[1][1].plot(np.arange(0,np.size(row_looking_at), 1), row_looking_at)
+            ax[1][1].plot(peaks, row_looking_at[peaks], "x")
+            ax[1][1].vlines(x=peaks, color = 'red', ymin=heights, ymax=row_looking_at[peaks], linewidth=1)
+            ax[1][1].set(xlabel='', ylabel='', title='Peaks')
 
-            ax[1][1].imshow(self.original, cmap='gray')
-            ax[1][1].vlines(x=peaks, color = 'red', ymin=0, ymax=len(blurred), linewidth=1)
-            ax[1][1].set(xlabel='', ylabel='', title='Detected lines')
+            ax[0][1].imshow(self.original, cmap='gray')
+            ax[0][1].vlines(x=peaks, color = 'red', ymin=0, ymax=len(blurred), linewidth=1)
+            ax[0][1].set(xlabel='', ylabel='', title='Detected lines')
 
 
 
@@ -364,18 +367,29 @@ class linefinder:
 
 
 
-'''
+
 
     def severity(self,baseline,view_plot= True):
-        x = linefinder.blur_sample_gauss(False)
-        y = scipy_peaks(False)
-        prominences = peak_prominences(x,y)
-        mean_prominence = np.mean(prominces)
-        #need to work out how this can be calculated out_of_10 = 
+        '''
+        Inputs:
+        self
+        Baseline - this is the mark that if the average prominence is above this, then the sample has failed. More testing needs to be done to determine exactly what this value should be
+        view_plot - should be set to true in order to display a figure showing the sample, the pixel values, and the detected lines 
+
+
+        '''
+        x = linefinder.blur_sample_gauss(self,False)
+        y = linefinder.scipy_peaks(self,False)
+        prominences = peak_prominences(x[self.row],y)[0]
+        mean_prominence = np.mean(prominences)
+        out_of_10 = ((mean_prominence - 2.167)/(5.661-2.167)) * 10
         if mean_prominence >= baseline:
-            print('Sample has failed, lines are too prominent for sample to be used')
+            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which equates to {} out of 10 '.format(mean_prominence, out_of_10))
         else:
             print('Sample has passed. Severity of lines is {}, which equates to {} out of 10'.format(mean_prominence, out_of_10))
+        if view_plot == True:
+            linefinder.find_lines_with_exclusions(self,True, True, 7) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
 
 
-'''
+
+
