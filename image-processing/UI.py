@@ -29,7 +29,7 @@ if new_files == 'scan':
         filename = str(filename_input)
         file = scans_folder / filename
         if not file.exists():
-            print('Sorry, this file does not exist, please retype including spaces, case sensitivity, and the file suffix, e.g. .jpeg')
+            print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg')
             continue
         else:
             scans.append(file)
@@ -42,7 +42,7 @@ if new_files == 'scan':
         np_array_scans.append(file)
 
     print('Please respond Yes or no to the following questions')
-    test_now = input('Would you like to test your inputted scans for lines?   ').lower()
+    test_now = input('Would you like to test your inputted scans for lines? If no, files are saved for later use  ').lower()
     set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters)   ').lower()
     view_plot = input('Would you like to view the output plot from the linefinder?').lower()
 
@@ -66,12 +66,12 @@ if new_files == 'scan':
                 row_imp = input('Set row number that is checked')
                 row = int(row_imp)
                 baseline_imp = input('How severe do lines need to be to be recorded, out of 10 - Note: 8 out of 10 is the reccommended value')
-                baseline = int(baseline_imp)
+                baseline = int(baseline_imp)/2
                 original = np_array_scans[scan]
                 finder = linefinder(original, blur, row)
                 if view_plot == 'yes':
                     print('Result for Sample {}'.format(scans[scan]))
-                    finder.severity(baseline,False)
+                    finder.severity(baseline,False) #still false so that plot_nice can be used
                     finder.plot_nice()
                 elif view_plot == 'no':
                     print('Result for Sample {}'.format(scans[scan]))
@@ -117,12 +117,18 @@ elif new_files == 'saved':
                     print('Result for Sample {}'.format(paths[scan].stem))
                     finder.severity(4,False)
         if set_paramaters == 'no':
+                '''
+                If set paramaters is no, then the user wants to set there own custom parameters. These parameters are the sigma value for the guassian blur - how blurred the sample gets:
+                the row that is checked for peaks
+                and the 'baseline'. if the mean prominence of the peaks is higher than the baseline, then the sample fails, so this baseline is essentially how severe is the test! 
+                '''
+
                 blur_imp = input('Set sigma value for gaussian blur')
                 blur = int(blur_imp)
                 row_imp = input('Set row number that is checked')
                 row = int(row_imp)
-                baseline_imp = input('How severe do lines need to be to be recorded, out of 10 - Note: 8 out of 10 is the reccommended value')
-                baseline = int(baseline_imp)
+                baseline_imp = input('How severe do lines need to be to fail the sample, out of 10 - Note: 8 out of 10 is the reccommended value') 
+                baseline = int(baseline_imp)/2
                 original = scans[scan]
                 finder = linefinder(original, blur, row)
                 if view_plot == 'yes':
