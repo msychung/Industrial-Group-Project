@@ -383,21 +383,28 @@ class linefinder:
         prominences = peak_prominences(x[self.row],y)[0]
         mean_prominence = np.mean(prominences)
         out_of_10 = ((mean_prominence - 2.16)/(5.661-2.167)) * 10
+        inv_out_of_10 = 10 - out_of_10
         if mean_prominence >= baseline:
-            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which equates to {} out of 10 '.format(mean_prominence, out_of_10))
+            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         else:
-            print('Sample has passed. Severity of lines is {}, which equates to {} out of 10'.format(mean_prominence, out_of_10))
+            print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         if view_plot == True:
             linefinder.find_lines_with_exclusions(self,True, True, 7) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
 
-    def plot_nice(self):
+    
+    def plot_nice(self, name):
+        '''
+        Inputs: Self
+
+        Outputs: outputs a cleaner looking plot than what is given by the other functions
+        '''
         blurred = linefinder.blur_sample_gauss(self,False)
         x = linefinder.find_lines_with_exclusions(self,view_plot= False, distance=False, min_promineneces=7)
 
 
 
-        fig, ax = plt.subplots(2,1)
-        fig.suptitle('Results')
+        fig, ax = plt.subplots(ncols = 2, nrows = 1)
+        fig.suptitle('Results for {}'.format(name))
        
         ax[0].imshow(blurred, cmap='gray')
         ax[0].set(xlabel='', ylabel='', title = 'Blurred Sample, sigma = {}'.format(self.sigma))
