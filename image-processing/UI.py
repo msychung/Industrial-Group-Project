@@ -9,8 +9,9 @@ from pathlib import Path
 from linefinder import linefinder
 '''
 specify somewhere that all number values should be entered as 6 not six
-make it so the paths is customisable 
-make it work if they answer no to if they want to run the test now (though why would they...)
+make it so the path is customisable without having to change it in the code
+
+plots are curretly shown when normally ran in terminal?
 '''
 paths = []
 scans = [] 
@@ -29,7 +30,7 @@ if new_files == 'scan':
         filename = str(filename_input)
         file = scans_folder / filename
         if not file.exists():
-            print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg')
+            print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg ')
             continue
         else:
             scans.append(file)
@@ -54,11 +55,12 @@ if new_files == 'scan':
                 row = 200
                 finder = linefinder(original, sigma, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample {}'.format(scans[scan].stem))
                     finder.severity(4,False)
-                    finder.plot_nice()
+                    name = str(scans[scan].stem)
+                    finder.plot_nice(name = name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample {}'.format(scans[scan].stem))
                     finder.severity(4,False)
             if set_paramaters == 'no':
                 blur_imp = input('Set sigma value for gaussian blur: ')
@@ -70,11 +72,12 @@ if new_files == 'scan':
                 original = np_array_scans[scan]
                 finder = linefinder(original, blur, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample:  {}'.format(scans[scan].stem))
                     finder.severity(baseline,False) #still false so that plot_nice can be used
-                    finder.plot_nice()
+                    name = str(scans[scan].stem)
+                    finder.plot_nice(name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample: {}'.format(scans[scan].stem))
                     finder.severity(baseline,False)
         if test_now == 'no':
 
@@ -110,11 +113,12 @@ elif new_files == 'saved':
                 row = 200
                 finder = linefinder(original, sigma, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample: {}'.format(paths[scan].stem))
                     finder.severity(4,False)
-                    finder.plot_nice()
+                    name = str(paths[scan].stem)
+                    finder.plot_nice(name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample:  {}'.format(paths[scan].stem))
                     finder.severity(4,False)
         if set_paramaters == 'no':
                 '''
@@ -132,11 +136,12 @@ elif new_files == 'saved':
                 original = scans[scan]
                 finder = linefinder(original, blur, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample:  {}'.format(paths[scan].stem))
                     finder.severity(baseline,False)
-                    finder.plot_nice()
+                    name = str(paths[scan].stem)
+                    finder.plot_nice(name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample:  {}'.format(paths[scan].stem))
                     finder.severity(baseline,False)    
 
     
