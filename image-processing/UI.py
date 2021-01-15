@@ -9,27 +9,28 @@ from pathlib import Path
 from linefinder import linefinder
 '''
 specify somewhere that all number values should be entered as 6 not six
-make it so the paths is customisable 
-make it work if they answer no to if they want to run the test now (though why would they...)
+make it so the path is customisable without having to change it in the code
+
+plots are curretly shown when normally ran in terminal?
 '''
 paths = []
 scans = [] 
 scans_folder = Path("scans_75dpi") #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
 np_array_scans = []
 
-new_files = input('enter new files, or find lines in previously saved files? Respond with either scan, or saved').lower()
+new_files = input('enter new files, or find lines in previously saved files? Respond with either new, or saved: ').lower()
 
-if new_files == 'scan':
-    files_to_load = input('How many files would you like to scan in')
+if new_files == 'new':
+    files_to_load = input('How many files would you like to scan in: ')
     int_files_to_load = int(files_to_load)
 
     i = 1
     while i <= int_files_to_load:
-        filename_input = input('please type the name of file number {}'.format(i))
+        filename_input = input('please type the name of file number {}: '.format(i))
         filename = str(filename_input)
         file = scans_folder / filename
         if not file.exists():
-            print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg')
+            print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg ')
             continue
         else:
             scans.append(file)
@@ -42,9 +43,9 @@ if new_files == 'scan':
         np_array_scans.append(file)
 
     print('Please respond Yes or no to the following questions')
-    test_now = input('Would you like to test your inputted scans for lines? If no, files are saved for later use  ').lower()
-    set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters)   ').lower()
-    view_plot = input('Would you like to view the output plot from the linefinder?').lower()
+    test_now = input('Would you like to test your inputted scans for lines? If no, files are saved for later use ').lower()
+    set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters) ').lower()
+    view_plot = input('Would you like to view the output plot from the linefinder? ').lower()
 
     if test_now == 'yes':
         for scan in range(len(np_array_scans)):
@@ -54,27 +55,29 @@ if new_files == 'scan':
                 row = 200
                 finder = linefinder(original, sigma, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample {}'.format(scans[scan].stem))
                     finder.severity(4,False)
-                    finder.plot_nice()
+                    name = str(scans[scan].stem)
+                    finder.plot_nice(name = name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample {}'.format(scans[scan].stem))
                     finder.severity(4,False)
             if set_paramaters == 'no':
-                blur_imp = input('Set sigma value for gaussian blur')
+                blur_imp = input('Set sigma value for gaussian blur:    ')
                 blur = int(blur_imp)
-                row_imp = input('Set row number that is checked')
+                row_imp = input('Set row number that is checked:     ')
                 row = int(row_imp)
-                baseline_imp = input('How severe do lines need to be to be recorded, out of 10 - Note: 8 out of 10 is the reccommended value')
+                baseline_imp = input('How severe do lines need to be in order to fail the sample, out of 10 - Note: 8 out of 10 is the reccommended value:       ')
                 baseline = int(baseline_imp)/2
                 original = np_array_scans[scan]
                 finder = linefinder(original, blur, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample:  {}'.format(scans[scan].stem))
                     finder.severity(baseline,False) #still false so that plot_nice can be used
-                    finder.plot_nice()
+                    name = str(scans[scan].stem)
+                    finder.plot_nice(name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(scans[scan]))
+                    print('Result for Sample: {}'.format(scans[scan].stem))
                     finder.severity(baseline,False)
         if test_now == 'no':
 
@@ -85,7 +88,7 @@ if new_files == 'scan':
 elif new_files == 'saved':
 
     while True:
-        filename = input('Please enter the filename of the samples you would like to scan, or STOP when all names have been entered')
+        filename = input('Please enter the filename of the samples you would like to scan, or STOP when all names have been entered: ')
         if filename == 'STOP' or filename == 'Stop' or filename == 'stop':
             break
         else:
@@ -110,11 +113,12 @@ elif new_files == 'saved':
                 row = 200
                 finder = linefinder(original, sigma, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample: {}'.format(paths[scan].stem))
                     finder.severity(4,False)
-                    finder.plot_nice()
+                    name = str(paths[scan].stem)
+                    finder.plot_nice(name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample:  {}'.format(paths[scan].stem))
                     finder.severity(4,False)
         if set_paramaters == 'no':
                 '''
@@ -132,11 +136,12 @@ elif new_files == 'saved':
                 original = scans[scan]
                 finder = linefinder(original, blur, row)
                 if view_plot == 'yes':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample:  {}'.format(paths[scan].stem))
                     finder.severity(baseline,False)
-                    finder.plot_nice()
+                    name = str(paths[scan].stem)
+                    finder.plot_nice(name)
                 elif view_plot == 'no':
-                    print('Result for Sample {}'.format(paths[scan].stem))
+                    print('Result for Sample:  {}'.format(paths[scan].stem))
                     finder.severity(baseline,False)    
 
     
