@@ -14,7 +14,7 @@ make it work if they answer no to if they want to run the test now (though why w
 '''
 paths = []
 scans = [] 
-scans_folder = Path("75dpi_scans") #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
+scans_folder = Path("../../75dpi_scans") #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
 np_array_scans = []
 
 new_files = input('enter new files, or find lines in previously saved files? Respond with either scan, or saved: ').lower()
