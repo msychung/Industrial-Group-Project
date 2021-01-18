@@ -412,6 +412,7 @@ class linefinder:
         ax[1].imshow(self.original, cmap='gray')
         ax[1].vlines(x=x, color = 'red', ymin=0, ymax=len(blurred), linewidth=1)
         ax[1].set(xlabel='', ylabel='', title='Detected lines')
+        plt.show()
 
 
 
