@@ -389,7 +389,7 @@ class linefinder:
         else:
             print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         if view_plot == True:
-            linefinder.find_lines_with_exclusions(self,True, True, 7) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
+            linefinder.find_lines_with_exclusions(self,True, True, 3) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
 
     
     def plot_nice(self, name):
