@@ -313,7 +313,7 @@ class linefinder:
         min_distance = None 
 
         if isinstance(min_promineneces, bool):
-            if min_promineneces: #if no value is given, then it takes prominences that are greater than the mean only 
+            if not min_promineneces: #if no value is given, then it takes prominences that are greater than the mean only 
             #it is probably sensible to also add a minimum prominence here, but more research is needed to find what this minimum should be 
                 mean_prominence = np.mean(prominences_no_exclusions)
                 prominences = prominences_no_exclusions[prominences_no_exclusions>=mean_prominence]
@@ -324,7 +324,7 @@ class linefinder:
             prominences = min_promineneces
 
         if isinstance(distance, bool):
-            if distance:
+            if not distance:
                 min_distance = len(blurred[0])/100 #if no value is given, defaults to a hundredth of the total width of the sample 
 
         elif isinstance(distance, int):
@@ -389,7 +389,7 @@ class linefinder:
         else:
             print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         if view_plot == True:
-            linefinder.find_lines_with_exclusions(self,True, True, 7) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
+            linefinder.find_lines_with_exclusions(self,True, True, 3) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
 
     
     def plot_nice(self, name):
@@ -399,7 +399,7 @@ class linefinder:
         Outputs: outputs a cleaner looking plot than what is given by the other functions
         '''
         blurred = linefinder.blur_sample_gauss(self,False)
-        x = linefinder.find_lines_with_exclusions(self,view_plot= False, distance=False, min_promineneces=7)
+        x = linefinder.find_lines_with_exclusions(self,view_plot= False, distance=10, min_promineneces=4)
 
 
 
