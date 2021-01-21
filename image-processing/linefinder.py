@@ -399,7 +399,7 @@ class linefinder:
         Outputs: outputs a cleaner looking plot than what is given by the other functions
         '''
         blurred = linefinder.blur_sample_gauss(self,False)
-        x = linefinder.find_lines_with_exclusions(self,view_plot= False, distance=False, min_promineneces=7)
+        x = linefinder.find_lines_with_exclusions(self,view_plot= False, distance=False, min_promineneces=3)
 
 
 
