@@ -2,8 +2,9 @@ import math
 import skimage
 from skimage import io, viewer, color, data, filters, feature
 from pathlib import Path
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
+
 import os.path
 from pathlib import Path
 from linefinder import linefinder
@@ -198,7 +199,6 @@ while True:
 
     if not (new_files == 'new') or (new_files == 'saved'):
         print('Sorry, that response was not recognised, please ensure correct spelling.')
-
 
 
 
