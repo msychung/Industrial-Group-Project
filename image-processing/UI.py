@@ -7,14 +7,12 @@ import numpy as np
 import os.path
 from pathlib import Path
 from linefinder import linefinder
-'''
-make it so the path is customisable without having to change it in the code
-note to self - if some values need to be changed depending on the sample, could send them different variation of the code to be ran for different samples if can't combine in to one 
-'''
+
+
 while True:
     response = input('please specify the path for where this code is saved, to where the sample scans have been saved. If unsure what is meant by this, please respond "help":  ')
     if (response == 'help') or (response == 'HELP') or (response == 'Help'):
-        print(r'Using file explorer on Widnows, open the folder containing the scans. In the naviagation bar at the top, rigt click on the name of the folder, and then click "copy address as text"\n' 'the copied text should look something like: "D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi"' )
+        print('Using file explorer on Widnows, open the folder containing the scans. In the naviagation bar at the top, rigt click on the name of the folder, and then click "copy address as text"\n' 'the copied text should look something like: "D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi"' )
         continue
     if not Path(response).is_dir():
         print('path was not recognised, please try again: ')
@@ -25,9 +23,22 @@ while True:
 
 paths = []
 scans = [] 
-scans_folder = Path(path_to_folder) #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
+scans_folder = Path(path_to_folder) 
 np_array_scans = []
 while True:
+    
+    sampleType_imp = input('What type of sample would you like to test? \n Enter 1 for Carbon, 2 for Metal-Coated Carbon... \n NOTE: only what type of sample can be tested at once, in order to test multiple types of sample, please re-run the program for each type \n Type of Sample:  ')
+
+    try:
+        sampleType = int(sampleType_imp)
+    except:
+        print('something went wrong. Please try again')
+        continue
+
+    if sampleType > 2: #CHANGE THIS WHEN OTHER SAMPLE TYPES ARE ADDED!!!!!!!!
+        print('Sorry, number did not correspond to a known sample type, please try again')
+        continue
+
     print('please ensure samples are scanned at 75dpi')
     new_files = input('enter new files, or find lines in previously saved files? Respond with either new, or saved: ').lower()
 
@@ -42,6 +53,9 @@ while True:
             file = scans_folder / filename
             if not file.exists():
                 print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg ')
+                kill = input('if you have already entered all of your files, and the original number you typed was too high, please type quit now: ').lower
+                if kill == 'quit':
+                    break
                 continue
             else:
                 scans.append(file)
@@ -67,29 +81,41 @@ while True:
                     finder = linefinder(original, sigma, row)
                     if view_plot == 'yes':
                         print('Result for Sample {}'.format(scans[scan].stem))
-                        finder.severity(4,False)
+                        if sampleType == 1:
+                            finder.severity_carbon(4,False)
+                        if sampleType == 2:
+                            finder.severity_metal_coated(6)
                         name = str(scans[scan].stem)
                         finder.plot_nice(name = name)
                     elif view_plot == 'no':
                         print('Result for Sample {}'.format(scans[scan].stem))
-                        finder.severity(4,False)
+                        if sampleType == 1:
+                            finder.severity_carbon(4,False)
+                        if sampleType == 2:
+                            finder.severity_metal_coated(6)
                 if set_paramaters == 'no':
-                    blur_imp = input('Set sigma value for gaussian blur:    ')
+                    blur_imp = input('Set sigma value for gaussian blur: ')
                     blur = int(blur_imp)
-                    row_imp = input('Set row number that is checked:     ')
+                    row_imp = input('Set row number that is checked: ')
                     row = int(row_imp)
-                    baseline_imp = input('How severe do lines need to be in order to fail the sample, out of 10 - Note: 8 out of 10 is the reccommended value:       ')
+                    baseline_imp = input('How severe do lines need to be in order to fail the sample ? \n Note: 8  is the reccommended value for Sample Type 1 \n 12 is the recommended value for Sample Type 2 \n Enter Value:  ')
                     baseline = int(baseline_imp)/2
                     original = np_array_scans[scan]
                     finder = linefinder(original, blur, row)
                     if view_plot == 'yes':
                         print('Result for Sample:  {}'.format(scans[scan].stem))
-                        finder.severity(baseline,False) #still false so that plot_nice can be used
+                        if sampleType == 1:
+                            finder.severity_carbon(baseline,False) #still false so that plot_nice can be used
+                        if sampleType ==2:
+                            finder.severity_metal_coated(6)
                         name = str(scans[scan].stem)
                         finder.plot_nice(name)
                     elif view_plot == 'no':
                         print('Result for Sample: {}'.format(scans[scan].stem))
-                        finder.severity(baseline,False)
+                        if sampleType == 1:
+                            finder.severity_carbon(baseline,False)
+                        if sampleType == 2:
+                            finder.severity_metal_coated(baseline)
         if test_now == 'no':
 
             print('files have been saved for later use')
@@ -128,12 +154,20 @@ while True:
                     finder = linefinder(original, sigma, row)
                     if view_plot == 'yes':
                         print('Result for Sample: {}'.format(paths[scan].stem))
-                        finder.severity(4,False)
+                        if sampleType == 1:
+                            finder.severity_carbon(4,False)
+                        if sampleType == 2:
+                            finder.severity_metal_coated(6)
+
                         name = str(paths[scan].stem)
                         finder.plot_nice(name)
                     elif view_plot == 'no':
                         print('Result for Sample:  {}'.format(paths[scan].stem))
-                        finder.severity(4,False)
+                        if sampleType == 1:
+                            finder.severity_carbon(4,False)
+                        if sampleType == 2:
+                            finder.severity_metal_coated(6)
+
             if set_paramaters == 'no':
                     '''
                     If set paramaters is no, then the user wants to set there own custom parameters. These parameters are the sigma value for the guassian blur - how blurred the sample gets:
@@ -145,13 +179,16 @@ while True:
                     blur = int(blur_imp)
                     row_imp = input('Set row number that is checked ')
                     row = int(row_imp)
-                    baseline_imp = input('How severe do lines need to be to fail the sample, out of 10 - Note: 8 out of 10 is the reccommended value ') 
+                    baseline_imp = input('How severe do lines need to be to fail the sample? \n Note: 8  is the reccommended value for Sample Type 1 \n 12 is the recommended value for Sample Type 2 \n Enter Value: ') 
                     baseline = int(baseline_imp)/2
                     original = scans[scan]
                     finder = linefinder(original, blur, row)
                     if view_plot == 'yes':
                         print('Result for Sample:  {}'.format(paths[scan].stem))
-                        finder.severity(baseline,False)
+                        if sampleType == 1:
+                            finder.severity_carbon(baseline,False)
+                        if sampleType == 2:
+                            finder.severity_metal_coated(baseline)
                         name = str(paths[scan].stem)
                         finder.plot_nice(name)
                     elif view_plot == 'no':
