@@ -4,20 +4,31 @@ from skimage import io, viewer, color, data, filters, feature
 from pathlib import Path
 import matplotlib.pyplot as plt 
 import numpy as np
-import os 
+import os.path
 from pathlib import Path
 from linefinder import linefinder
 '''
-specify somewhere that all number values should be entered as 6 not six
 make it so the path is customisable without having to change it in the code
-
-plots are curretly not shown when normally ran in terminal?
+note to self - if some values need to be changed depending on the sample, could send them different variation of the code to be ran for different samples if can't combine in to one 
 '''
+while True:
+    response = input('please specify the path for where this code is saved, to where the sample scans have been saved. If unsure what is meant by this, please respond "help":  ')
+    if (response == 'help') or (response == 'HELP') or (response == 'Help'):
+        print(r'Using file explorer on Widnows, open the folder containing the scans. In the naviagation bar at the top, rigt click on the name of the folder, and then click "copy address as text"\n' 'the copied text should look something like: "D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi"' )
+        continue
+    if not Path(response).is_dir():
+        print('path was not recognised, please try again: ')
+        continue
+    if Path(response).is_dir():
+        path_to_folder = response
+        break
+
 paths = []
 scans = [] 
-scans_folder = Path("scans_75dpi") #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
+scans_folder = Path(path_to_folder) #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
 np_array_scans = []
 while True:
+    print('please ensure samples are scanned at 75dpi')
     new_files = input('enter new files, or find lines in previously saved files? Respond with either new, or saved: ').lower()
 
     if new_files == 'new':
