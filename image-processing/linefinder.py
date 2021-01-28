@@ -4,8 +4,8 @@ from skimage import io, viewer, color, data, filters, feature, morphology, expos
 from pathlib import Path
 import matplotlib.pyplot as plt 
 import numpy as np
-from scipy import ndimage, fftpack
-from scipy.signal import argrelextrema, lfilter, find_peaks_cwt, find_peaks, peak_prominences
+from scipy import ndimage
+from scipy.signal import find_peaks, peak_prominences
 
 '''
 ADD-INS - ADD IN A REPEATED FOR A DIFFERENT ROW, AND THEN CAN CHECK THE EXISTENCE OF A LINE BY CHECKING IF A MAXIMUM IS IN BOTH OF THE ROWS (Can expand to >2 rows)
@@ -21,7 +21,7 @@ class linefinder:
         sigma - the sigma value of Gaussian Blur (standard deviation)
         row - the single row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
 
-        Outputs vary with each function, however the view_plot input is seen in all class functions. If this is set to True, then a plot will be displayed 
+        Outputs vary with each function, however the view_plot input is present in all class functions. If this is set to True, then a plot will be displayed 
 
       '''
     
@@ -52,7 +52,6 @@ class linefinder:
 
     def blur_sample_gauss(self, view_plot=True):
         '''
-
         Applies a Gaussian blur to the original sample. This is used to reduce and smooth out noise in the sample.
 
             INPUTS: 
@@ -134,7 +133,6 @@ class linefinder:
 
     def find_prominences(self, view_plot = True):
         '''
-
         Finds the prominence of the peaks found by the scipy_peaks method.
 
             INPUTS:
@@ -176,7 +174,7 @@ class linefinder:
 
     def find_lines_with_exclusions(self, view_plot = True, distance = False, min_prominences = False):
         '''
-    --- need to raise an error if iNPUTS are neither integers or booleans ---
+    --- need to raise an error if inputs are neither integers nor booleans ---
     find lines within the sample, excluding some of the peaks from the original find peaks method, in an attempt to make sure that peaks aren't found when there are no visible peaks --- 
     in the sample 
 
@@ -261,22 +259,23 @@ class linefinder:
 
 
 
-
-
-    def severity_carbon(self,baseline,view_plot= True):
+    def severity_carbon(self, baseline):
         '''
-        determine the severity of machine direction lines in a sample of carbon veil nonwoven
-        Inputs:
-        self
-        Baseline - this is the mark that if the average prominence is above this, then the sample has failed. More testing needs to be done to determine exactly what this value should be
-        view_plot - should be set to true in order to display a figure showing the sample, the pixel values, and the detected lines 
-
+        Determines the severity of machine direction lines in a sample of a carbon veil nonwoven.
+        
+            INPUTS:
+            self
+            baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails. More testing needs to be done to determine exactly what this value should be
+            view_plot - set True to view the output plot of the sample, pixel values and detected lines
+            
+            RETURNS:
+            Score out of 10 
         '''
         
         x = linefinder.blur_sample_gauss(self, False)
         y = linefinder.scipy_peaks(self, False)
 
-        prominences = peak_prominences(x[self.row],y)[0]
+        prominences = peak_prominences(x[self.row], y)[0]
         mean_prominence = np.mean(prominences)
         out_of_10 = ((mean_prominence - 2.16)/(5.661-2.167)) * 10
         inv_out_of_10 = 10 - out_of_10
@@ -289,45 +288,54 @@ class linefinder:
 
         else:
             print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
-        
-        if view_plot == True:
 
-            linefinder.find_lines_with_exclusions(self,True, True, 7) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
+        
         return inv_out_of_10
+
+
 
     def severity_metal_coated(self, baseline):
 
         '''
-        determine the severity of machine direction lines in a sample of metal coated carbon viel nonwoven
-        Inputs:
-        self
-        Baseline - this is the mark that if the average prominence is above this, then the sample has failed. More testing needs to be done to determine exactly what this value should be
+        Determines the severity of machine direction lines in a sample of a metal coated carbon veil nonwoven.
+        
+            INPUTS:
+            self
+            baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails (more testing needed)
         '''
        
-        x = linefinder.blur_sample_gauss(self,False)
-        y = linefinder.scipy_peaks(self,False)
+        x = linefinder.blur_sample_gauss(self, False)
+        y = linefinder.scipy_peaks(self, False)
+
         prominences = peak_prominences(x[self.row],y)[0]
         mean_prominence = np.mean(prominences)
         out_of_10 = ((mean_prominence - 4.00)/(10.9-4.00)) * 10
         inv_out_of_10 = 10 - out_of_10
+        
         if mean_prominence >= baseline:
             print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+        
         if baseline - 1 < mean_prominence < baseline + 1:
             print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
+        
         else:
             print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+
+        return inv_out_of_10
+
 
 
     def plot_nice(self, name):
         '''
+        Makes plots a bit more aesthetic.
 
             INPUTS: self
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
+        
         blurred = linefinder.blur_sample_gauss(self, False)
-        x = linefinder.find_lines_with_exclusions(self, view_plot= False, distance=10, min_prominences=4)
-
+        x = linefinder.find_lines_with_exclusions(self, view_plot=False, distance=10, min_prominences=4)
 
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
         fig.suptitle('Results for {}'.format(name))
