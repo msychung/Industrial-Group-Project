@@ -15,13 +15,15 @@ class linefinder:
     '''
     A class of different methods to hopefully find the machine direction lines in a sample nonwoven.
 
+
         INPUTS: 
         original - greyscale sample, should be a np array
         sigma - the sigma value of Gaussian Blur (standard deviation)
         row - the single row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
 
         Outputs vary with each function, however the view_plot input is seen in all class functions. If this is set to True, then a plot will be displayed 
-    '''
+
+      '''
     
     
 
@@ -29,12 +31,14 @@ class linefinder:
         '''
         Initialisation function of the class. 
         
+
             INPUTS: 
             original - greyscale sample, should be a np array
             sigma - the sigma value of Gaussian Blur (standard deviation)
             row - the row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
 
             A ValueError is raised if a row is selected which is out of the bounds of the sample
+
         '''
 
         self.original = original
@@ -48,6 +52,7 @@ class linefinder:
 
     def blur_sample_gauss(self, view_plot=True):
         '''
+
         Applies a Gaussian blur to the original sample. This is used to reduce and smooth out noise in the sample.
 
             INPUTS: 
@@ -60,6 +65,7 @@ class linefinder:
 
             RETURNS:
             sample_blur - np array containing the blurred sample, which is used throughout the rest of the class 
+
         '''
         
         sample_blur = ndimage.gaussian_filter(self.original, self.sigma)
@@ -86,164 +92,6 @@ class linefinder:
         return sample_blur
 
 
-
-    def find_lines_gblur(self, view_plot):
-        '''
-        After the sample has gone through a Gaussian Blur, argrelextrema is used to find local minima along the pixel values for a row. These minima are assumed to be 
-        due to the prescence of lines.
-
-            INPUTS: 
-            self
-            view_plot - set True to view the output plot 
-
-            OUTPUTS:
-            fig - figure showing the blurred sample, pixel values against position of row selected, and the detected lines on the original sample from the peaks of 
-            the Gaussian blur 
-
-            RETURNS:
-            max_position - positions of the lines, i.e. the local minima along selected row of pixels (will be maxima for light samples)
-        ''' 
-
-        x = linefinder.blur_sample_gauss(self, view_plot = False)
-        max_positions = argrelextrema(x[self.row], np.greater)
-        
-        if view_plot == True:
-
-            fig, ax = plt.subplots(ncols=3, nrows=1)
-            fig.suptitle('Detecting lines through Gaussian Blur')
-
-            ax[0].imshow(x, cmap='gray')
-            ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
-
-            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
-            ax[1].set(xlabel='', ylabel='', title = 'Values along {}th row of blurred sample'.format(self.row))
-
-            ax[2].imshow(self.original, cmap='gray')
-            ax[2].vlines(max_positions, color ='red', ymin=0, ymax=500, linewidth=1)
-            ax[2].set(xlabel='', ylabel='', title = 'Detected lines')
-
-            plt.show()
-
-        return max_positions
-
-
-
-    def FT_blur(self, view_plot=True):
-        '''
-        Takes the Fourier transform of one row of pixels, to clarify the existence of periodic behaviour. 
-
-            INPUTS: 
-            self
-            view_plot - set True to view the output plot 
-
-            OUTPUTS:
-            fig - figure showing blurred sample, pixel values of selected row and Fourier transform of the pixel value on that rows 
-
-            RETURNS:
-            sample_FT - array containing the Fourier transform of the chosen row of the blurred sample 
-        '''
-
-        x = linefinder.blur_sample_gauss(self, view_plot=False)
-        sample_FT = fftpack.fft(x[self.row])
-        
-        FTabs = np.abs(sample_FT)
-
-        if view_plot == True:
-
-            fig, ax = plt.subplots(ncols=3, nrows=1)
-            fig.suptitle('Fourier Transform after Blurring')
-
-            ax[0].imshow(x, cmap='gray')
-            ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
-
-            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
-            ax[1].set(xlabel='', ylabel='', title = 'Values along {}th row of blurred sample'.format(self.row))
-
-            ax[2].plot(np.arange(0,np.size(FTabs)-1, 1), FTabs[1:])
-            ax[2].set(xlabel='', ylabel='', title = 'FT transform of row {} of values'.format(self.row))
-
-            plt.show()
-
-        return sample_FT
-
-
-
-    def find_lines_fourier(self, view_plot=True):
-        '''
-        Uses the Fourier transform to find lines by using the argrelextrema package to find local maxima from within the Fourier transform.
-        
-            INPUTS:
-            self
-            view_plot - set True to view the output plot 
-
-            OUTPUTS:
-            fig - figure showing the blurred sample, the pixel values along the chosen row, and the lines detected - the positions of the local maxima of the Fourier transform
-
-            RETURNS:
-            max_positions - line positions according to the local maxima of the Fourier Transform
-        '''
-        
-        x = linefinder.blur_sample_gauss(self, False)
-        y = linefinder.FT_blur(self, False)
-        max_positions = argrelextrema(np.real(y), np.greater)
-        
-        if view_plot == True:
-
-            fig, ax = plt.subplots(ncols=3, nrows=1)
-            fig.suptitle('Detecting lines through Fourier transform')
-
-            ax[0].imshow(x, cmap='gray')
-            ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
-
-            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
-            ax[1].set(xlabel='', ylabel='', title = 'Values along row {} of blurred sample'.format(self.row))
-
-            ax[2].imshow(self.original, cmap='gray')
-            ax[2].vlines(max_positions, color = 'red', ymin=0, ymax=500, linewidth=1)
-            ax[2].set(xlabel='', ylabel='', title = 'Detected lines')
-
-            plt.show()
-        
-        return max_positions
-
-
-
-    def cwt(self, view_plot=True):
-        '''
-        Uses a wavelet transform to try and find peaks - the original data is convolved with wavelets, the widths of this are an input of the find_peaks_cwt.
-        MORE RESEARCH NEEDED INTO THE EFFECT OF CHANGING WAVELET WIDTHS
-
-            INPUTS:
-            self
-            view_plot - set True to view the output plot 
-
-            OUTPUTS:
-            fig - figure showing the blurred sample, the pixel values along the chosen row, and the lines detected - the positions of peaks along that row
-        '''
-        
-        x = linefinder.blur_sample_gauss(self, False)
-        widths = (np.arange(1,np.size(x[self.row])+1, 1))
-        peak_positions = find_peaks_cwt(x[self.row], widths)
-
-        if view_plot == True:
-
-            fig, ax = plt.subplots(ncols=3, nrows=1)
-            fig.suptitle('Detecting lines though CWT transform')
-
-            ax[0].imshow(x, cmap='gray')
-            ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
-
-            ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
-            ax[1].set(xlabel='', ylabel='', title = 'Values along row {} of blurred sample'.format(self.row))
-
-            ax[2].imshow(self.original, cmap='gray')
-            ax[2].vlines(peak_positions, color = 'red', ymin=0, ymax=500, linewidth=1)
-            ax[2].set(xlabel='', ylabel='', title = 'Detected lines')
-
-            plt.show()
-        
-
-
     def scipy_peaks(self, view_plot=True):
         '''
         Finds pixel value peaks along the chosen row, using the scipy find_peaks function.
@@ -257,7 +105,8 @@ class linefinder:
 
             RETURNS:
             peak_positions - x positions of the peaks along the chosen row 
-        '''
+
+          '''
         
         x = linefinder.blur_sample_gauss(self, False)
         peak_positions = find_peaks(x[self.row])
@@ -285,6 +134,7 @@ class linefinder:
 
     def find_prominences(self, view_plot = True):
         '''
+
         Finds the prominence of the peaks found by the scipy_peaks method.
 
             INPUTS:
@@ -293,6 +143,7 @@ class linefinder:
 
             OUTPUTS:
             fig - figure showing the blurred sample, the pixel values along the chosen rows, and the pixel value with marked peaks and lines drawn to show prominence 
+
         '''
         
         x = linefinder.blur_sample_gauss(self, False)
@@ -340,6 +191,7 @@ class linefinder:
         OUTPUTS: 
         fig - figure showing the blurred sample, the pixel values along the chosen rows, and the pixel value with marked peaks and lines drawn to show prominence, and the lines detected 
         by this method on top of the original sample 
+
         '''
         
         blurred = linefinder.blur_sample_gauss(self, False)
@@ -352,8 +204,10 @@ class linefinder:
         prominences = None      #these are set to none in case they aren't set in the inputs by the user 
         min_distance = None 
 
+
         if isinstance(min_prominences, bool):
             if not min_prominences: #if no value is given, then it takes prominences that are greater than the mean only 
+
             #it is probably sensible to also add a minimum prominence here, but more research is needed to find what this minimum should be 
                 
                 mean_prominence = np.mean(prominences_no_exclusions)
@@ -364,8 +218,11 @@ class linefinder:
             prominences = min_prominences
 
         if isinstance(distance, bool):
+
+
             if not distance:
                 min_distance = len(blurred[0])/100      #if no value is given, defaults to a hundredth of the total width of the sample 
+
 
         elif isinstance(distance, int):
             min_distance = distance
@@ -404,12 +261,16 @@ class linefinder:
 
 
 
-    def severity(self, baseline, view_plot = True):
+
+
+    def severity_carbon(self,baseline,view_plot= True):
         '''
-            INPUTS: 
-            self
-            baseline - this is the mark that if the average prominence is above this, then the sample has failed. More testing needs to be done to determine exactly what this value should be
-            view_plot - should be set to true in order to display a figure showing the sample, the pixel values, and the detected lines 
+        determine the severity of machine direction lines in a sample of carbon veil nonwoven
+        Inputs:
+        self
+        Baseline - this is the mark that if the average prominence is above this, then the sample has failed. More testing needs to be done to determine exactly what this value should be
+        view_plot - should be set to true in order to display a figure showing the sample, the pixel values, and the detected lines 
+
         '''
         
         x = linefinder.blur_sample_gauss(self, False)
@@ -422,23 +283,51 @@ class linefinder:
         
         if mean_prominence >= baseline:
             print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
-        
+
+        if baseline - 1 < mean_prominence < baseline + 1:
+            print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
+
         else:
             print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         
         if view_plot == True:
-            linefinder.find_lines_with_exclusions(self, True, True, 3) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
+
+            linefinder.find_lines_with_exclusions(self,True, True, 7) # the 7 here is just what appears to be the best from testing, it's not been calculated as such
+        return inv_out_of_10
+
+    def severity_metal_coated(self, baseline):
+
+        '''
+        determine the severity of machine direction lines in a sample of metal coated carbon viel nonwoven
+        Inputs:
+        self
+        Baseline - this is the mark that if the average prominence is above this, then the sample has failed. More testing needs to be done to determine exactly what this value should be
+        '''
+       
+        x = linefinder.blur_sample_gauss(self,False)
+        y = linefinder.scipy_peaks(self,False)
+        prominences = peak_prominences(x[self.row],y)[0]
+        mean_prominence = np.mean(prominences)
+        out_of_10 = ((mean_prominence - 4.00)/(10.9-4.00)) * 10
+        inv_out_of_10 = 10 - out_of_10
+        if mean_prominence >= baseline:
+            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+        if baseline - 1 < mean_prominence < baseline + 1:
+            print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
+        else:
+            print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
 
 
-    
     def plot_nice(self, name):
         '''
+
             INPUTS: self
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
         blurred = linefinder.blur_sample_gauss(self, False)
         x = linefinder.find_lines_with_exclusions(self, view_plot= False, distance=10, min_prominences=4)
+
 
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
         fig.suptitle('Results for {}'.format(name))
@@ -448,6 +337,7 @@ class linefinder:
 
         ax[1].imshow(self.original, cmap='gray')
         ax[1].vlines(x=x, color = 'red', ymin=0, ymax=len(blurred), linewidth=1)
-        ax[1].set(xlabel='', ylabel='', title = 'Detected lines')
+
+        ax[1].set(xlabel='', ylabel='', title='Detected lines')
 
         plt.show()
