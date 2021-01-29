@@ -317,6 +317,7 @@ class linefinder:
             print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         if baseline - 1 < mean_prominence < baseline + 1:
             print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
+        return inv_out_of_10
         
 
 
