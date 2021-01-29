@@ -12,6 +12,8 @@ from linefinder import linefinder
 '''
 to do list:
 -error handling
+    - make it so the saved or new error handle doesnt make you repeat earlier questions?
+    - ensure at least one sample as to be entered
 -input areal weight, and change linefinder based on areal weights
 - actually end the program when it ends
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
@@ -254,7 +256,7 @@ while True:
                                 print('Response for row number not recognised \n Please try again, ensuring value is in number format - i.e. "200"')
                                 continue
                             
-                            baseline_input = input('How severe do lines need to be in order to fail the sample ? \n Note: 4  is the reccommended value for Sample Type 1 \n 6 is the recommended value for Sample Type 2 \n Enter Value:  ')
+                            baseline_input = input('How severe do lines need to be in order to fail the sample ? \n Note: 4  is the reccommended value for Sample Type 1 \n        6 is the recommended value for Sample Type 2 \n Enter Value:  ')
                             try:
                                 baseline = int(baseline_input)
                             except:
@@ -293,7 +295,7 @@ while True:
             print('Sorry, that response was not recognised, please ensure correct spelling.')
             continue
     
-    print('Respond quit, if you are finished and would like to quit the program. \n Respond again if you would like to run the program again')
+    print('Respond quit, if you are finished and would like to quit the program. \nRespond again if you would like to run the program again')
     while True:
         end_program = input('Enter your response here: ').lower()
         if end_program == 'quit':
