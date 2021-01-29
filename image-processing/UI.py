@@ -14,12 +14,14 @@ to do list:
 -error handling
 -input areal weight, and change linefinder based on areal weights
 - actually end the program when it ends
+- add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
+
 '''
 while True:
     while True:
         response = input('please specify the path for where this code is saved, to where the sample scans have been saved. If unsure what is meant by this, please respond "help":  ')
         if (response == 'help') or (response == 'HELP') or (response == 'Help'):
-            print(r'Using file explorer on Widnows, open the folder containing the scans. In the naviagation bar at the top, rigt click on the name of the folder, and then click "copy address as text"\n the copied text should look something like: "D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi"' )
+            print('Using file explorer on Widnows, open the folder containing the scans. In the naviagation bar at the top, rigt click on the name of the folder, and then click "copy address as text"\n the copied text should look something like: "D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi"' )
             continue
         if not Path(response).is_dir():
             print('path was not recognised, please try again: ')
@@ -77,21 +79,21 @@ while True:
             print('Please respond Yes or no to the following questions')
             while True:
                 test_now = input('Would you like to test your inputted scans for lines? If no, files are saved for later use ').lower()
-                if not test_now == 'yes' or test_now =='no':
+                if not (test_now == 'yes' or test_now =='no'):
                     print('Response was not recognised, please try again, and respond with yes or no.')
                     continue
                 break
             
             while True:
                 set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters) ').lower()
-                if not set_paramaters == 'yes' or set_paramaters =='no':
+                if not (set_paramaters == 'yes' or set_paramaters =='no'):
                     print('Response was not recognised, please try again, and respond with yes or no.')
                     continue
                 break
             
             while True:
                 view_plot = input('Would you like to view the output plot from the linefinder? ').lower()
-                if not view_plot == 'yes' or view_plot =='no':
+                if not (view_plot == 'yes' or view_plot =='no'):
                     print('Response was not recognised, please try again, and respond with yes or no.')
                     continue
                 break
@@ -196,14 +198,14 @@ while True:
             print('Please respond Yes or no to the following questions')
             while True:
                 set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters) ').lower()
-                if not set_paramaters == 'yes' or set_paramaters =='no':
+                if not (set_paramaters == 'yes' or set_paramaters =='no'):
                     print('Response was not recognised, please try again, and respond with yes or no.')
                     continue
                 break
             
             while True:
                 view_plot = input('Would you like to view the output plot from the linefinder? ').lower()
-                if not view_plot == 'yes' or view_plot =='no':
+                if not (view_plot == 'yes' or view_plot =='no'):
                     print('Response was not recognised, please try again, and respond with yes or no.')
                     continue
                 break
@@ -260,7 +262,7 @@ while True:
                                 continue
                         
                         
-                            original = np_array_scans[scan]
+                            original = scans[scan]
                             try:
                                 finder = linefinder(original, blur, row)
                             except ValueError:
@@ -280,16 +282,20 @@ while True:
                             finder.plot_nice(name)
                         elif view_plot == 'no':
                             print('Result for Sample:  {}'.format(paths[scan].stem))
-                            finder.severity(baseline,False)   
+                            if sampleType == 1:
+                                finder.severity_carbon(baseline,False)  
+                            if sampleType == 3:
+                                finder.severity_metal_coated(baseline)
+                             
             break 
 
         if not (new_files == 'new') or (new_files == 'saved'):
             print('Sorry, that response was not recognised, please ensure correct spelling.')
             continue
     
-    print('Respond quit, if you are finished and would like to quit the program. \n Respond again if you would like to run the program again').lower()
+    print('Respond quit, if you are finished and would like to quit the program. \n Respond again if you would like to run the program again')
     while True:
-        end_program = input('Enter your response here: ')
+        end_program = input('Enter your response here: ').lower()
         if end_program == 'quit':
             sys.exit()
         elif end_program == 'again':
