@@ -15,8 +15,11 @@ to do list:
     - make it so the saved or new error handle doesnt make you repeat earlier questions?
     - ensure at least one sample as to be entered
 -input areal weight, and change linefinder based on areal weights
-- actually end the program when it ends
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
+- add to plot_nice the numerical value of the lines (probably out of ten score is better?) 
+    - just add as an extra input, or make the plot_nice function run severity, as the out of 10 is returned, and add that to the plot
+        - this second method will slow things down a lot, as severity will be running multiple times for each sample 
+            - but everything is very very fast so far
 
 '''
 while True:
