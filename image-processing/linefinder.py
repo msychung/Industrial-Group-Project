@@ -269,27 +269,30 @@ class linefinder:
             view_plot - set True to view the output plot of the sample, pixel values and detected lines
             
             RETURNS:
-            Score out of 10 
+            inv_out_of_10 - a score out of 10, with 1 being the worst and 10 being the best
         '''
         
         x = linefinder.blur_sample_gauss(self, False)
         y = linefinder.scipy_peaks(self, False)
 
+        upper_bound = 5.661   # Highest mean prominence across data set
+        lower_bound = 2.167   # Lowest mean prominence across data set
+
         prominences = peak_prominences(x[self.row], y)[0]
         mean_prominence = np.mean(prominences)
-        out_of_10 = ((mean_prominence - 2.16)/(5.661-2.167)) * 10
+
+        out_of_10 = ((mean_prominence - lower_bound)/(higher_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
         if mean_prominence >= baseline:
             print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
 
-        if baseline - 1 < mean_prominence < baseline + 1:
+        elif baseline - 1 < mean_prominence < baseline + 1:
             print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
 
         else:
-            print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+            print('Sample has passed. Severity of lines is {}, which gives the sample a score of {} out of 10'.format(mean_prominence, inv_out_of_10))
 
-        
         return inv_out_of_10
 
 
@@ -302,24 +305,31 @@ class linefinder:
             INPUTS:
             self
             baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails (more testing needed)
+        
+            RETURNS:
+            inv_out_of_10 - a score out of 10, with 1 being the worst and 10 being the best
         '''
        
         x = linefinder.blur_sample_gauss(self, False)
         y = linefinder.scipy_peaks(self, False)
 
+        upper_bound = 10.9  # Highest mean prominence across data set
+        lower_bound = 4.00  # Lowest mean prominence across data set
+
         prominences = peak_prominences(x[self.row],y)[0]
         mean_prominence = np.mean(prominences)
-        out_of_10 = ((mean_prominence - 4.00)/(10.9-4.00)) * 10
+
+        out_of_10 = ((mean_prominence - lower_bound)/(higher_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
         if mean_prominence >= baseline:
             print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
         
-        if baseline - 1 < mean_prominence < baseline + 1:
+        elif baseline - 1 < mean_prominence < baseline + 1:
             print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
         
         else:
-            print('Sample has passed. Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+            print('Sample has passed. \n Severity of lines is {}, which gives the sample a score of {} out of 10'.format(mean_prominence, inv_out_of_10))
 
         return inv_out_of_10
 
