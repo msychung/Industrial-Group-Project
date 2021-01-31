@@ -36,7 +36,6 @@ np_array_scans = []
 def yesno_error():
     print("Sorry, that response was not recognised, please enter either 'yes' or 'no', and ensure correct spelling.")
 
-"""
 while True:
     response = input("Please specify the path containing the sample scan files. Enter 'help' for further explanation: ")
 
@@ -55,9 +54,9 @@ while True:
     else:
         print("Path does not exist, please try again: ")
         continue
-"""
 
-path_to_folder = r"C:\\Users\\Melissa\\OneDrive - Lancaster University\\University\\Third Year\\PHYS 355\Sample Data\\Carbon Veil\Scans\\75dpi"
+# path_to_folder = r"C:\\Users\\Melissa\\OneDrive - Lancaster University\\University\\Third Year\\PHYS 355\Sample Data\\Carbon Veil\Scans\\75dpi"
+# this is just here to save me pasting in the path every time i test run the code
 scans_folder = Path(path_to_folder) 
 
 # Edit this dictionary to change/add additional types of materials
