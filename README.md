@@ -1,5 +1,5 @@
 # Industrial-Group-Project
-**Software analysis code for the PHYS 355 Industrial Group Project with TFP.**
+### **Software analysis code for the PHYS 355 Industrial Group Project with TFP.**
 
 The aim of this project is to characterise defects in PEM fuel cell materials produced by Technical Fibre Products Ltd (TFP). In particular, the presence of visually unappealing lines in the gas diffusion layers (GDL) of fuel cells has plagued particular carbon-based nonwovens manufactured by TFP. Such defects do not appear to hinder the technical performance of the GDL, yet impair the customer perception of product quality. This has called for a quantitative testing method to be devised, providing both a quantifiable determination of line severity, and a clear procedure through which future improvements can be assessed.
 
