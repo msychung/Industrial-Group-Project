@@ -3,16 +3,19 @@ from skimage import io, viewer, color, data, filters, feature
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+import sys
 import os.path
 from linefinder import linefinder
 
 """
 TF's to do list:
 -error handling
-    - make it so the saved or new error handle doesnt make you repeat earlier questions?
-    - ensure at least one sample has to be entered
+    - no question repeat
+    - ensure at least one sample has been entered
 -input areal weight, and change linefinder based on areal weights
+    - two sections, high vs low?
+
+    Gave to MR:
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
 - add to plot_nice the numerical value of the lines (probably out of ten score is better?) 
     - just add as an extra input, or make the plot_nice function run severity, as the out of 10 is returned, and add that to the plot
@@ -55,7 +58,7 @@ while True:
         print("Path does not exist, please try again: ")
         continue
 
-# path_to_folder = r"C:\\Users\\Melissa\\OneDrive - Lancaster University\\University\\Third Year\\PHYS 355\Sample Data\\Carbon Veil\Scans\\75dpi"
+# path_to_folder = D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi
 # this is just here to save me pasting in the path every time i test run the code
 scans_folder = Path(path_to_folder) 
 
@@ -91,7 +94,7 @@ while True:
         print("This number does not correspond to a known sample type, please try again.")
         continue
 
-    print("Please ensure samples are scanned at 75dpi. ")   # Think this is a bit restrictive? Maybe give a range or play around with similar resolutions to see if they give similar results?
+    print("Please ensure samples are scanned at 75dpi. ")   # Think this is a bit restrictive? Maybe give a range or play around with similar resolutions to see if they give similar results?. no. 
 
 
     while True:
@@ -112,8 +115,16 @@ while True:
             while i <= int_files_to_load:
 
                 filename_input = input("Please enter the name of file no. {}, including file extension: ".format(i))
+                
                 filename = str(filename_input)
                 file = scans_folder / filename
+
+                while True:
+                    grouping = input("is the file '{}' a scan of a low, or high areal weight sample?   ".format(filename_input)).lower()
+                    if not (grouping == 'high' or grouping =='low'):
+                        print('response not recognised, please respond with either high or low')
+                        continue
+                    break
 
                 if not file.exists():
                     print("Sorry, this file does not exist. Please re-enter including any spaces, and the file extension, e.g. .jpeg")
@@ -124,17 +135,19 @@ while True:
                         break
                     break
 
-                    continue
-
+                
+                
+                  
                 else:
-                    scans_new.append(file)
+                    file_info = [file, grouping]
+                    scans_new.append(file_info)
                     print("File no. {} added successfully.".format(i))
                     i += 1 
 
             for scan in range(len(scans_new)):
 
-                file = io.imread(fname=scans_new[scan], as_gray=True)
-                np.save('{}.npy'.format(scans_new[scan]), file, allow_pickle=True) # Would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
+                file = io.imread(fname=scans_new[scan][0], as_gray=True)
+                np.save('{}.npy'.format(scans_new[scan][0]), file, allow_pickle=True) # Would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
                 np_array_scans.append(file)
 
 
@@ -179,31 +192,33 @@ while True:
 
                         if set_parameters == 'yes':
 
-                            original = np_array_scans[scan]
+                            original = np_array_scans[scan][0]
+                           
+                            grouping = np_array_scans[scan][1]
                             sigma = 1
                             row = 250
                             finder = linefinder(original, sigma, row)
 
                             if view_plot == 'yes':
-                                print('Result for Sample {}'.format(scans_new[scan].stem))
+                                print('Result for Sample {}'.format(scans_new[scan][0].stem))
 
                                 if sampleType == 1:
-                                    finder.severity_carbon(4)
+                                    finder.severity_carbon(4, grouping)
 
                                 if sampleType == 2:
-                                    finder.severity_metal_coated(6)
+                                    finder.severity_metal_coated(6, grouping)
 
-                                name = str(scans_new[scan].stem)
+                                name = str(scans_new[scan][0].stem)
                                 finder.plot_nice(name = name)
 
                             elif view_plot == 'no':
-                                print('Result for Sample {}'.format(scans_new[scan].stem))
+                                print('Result for Sample {}'.format(scans_new[scan][0].stem))
 
                                 if sampleType == 1:
-                                    finder.severity_carbon(4)
+                                    finder.severity_carbon(4, grouping)
 
                                 if sampleType == 2:
-                                    finder.severity_metal_coated(6)
+                                    finder.severity_metal_coated(6, grouping)
 
 
                         elif set_parameters == 'no':
@@ -230,6 +245,7 @@ while True:
                                     continue
 
                                 original = np_array_scans[scan]
+                                grouping = np_array_scans[scan][1]
                                 try:
                                     finder = linefinder(original, blur, row)
                                 
@@ -254,25 +270,25 @@ while True:
 
 
                             if view_plot == 'yes':
-                                print('Result for Sample:  {}'.format(scans_new[scan].stem))
+                                print('Result for Sample:  {}'.format(scans_new[scan][0].stem))
 
                                 if sampleType == 1:
-                                    finder.severity_carbon(baseline) 
+                                    finder.severity_carbon(baseline, grouping) 
 
                                 if sampleType == 2:
-                                    finder.severity_metal_coated(baseline)
+                                    finder.severity_metal_coated(baseline, grouping)
 
-                                name = str(scans_new[scan].stem)
+                                name = str(scans_new[scan][0].stem)
                                 finder.plot_nice(name = name)
 
                             elif view_plot == 'no':
-                                print('Result for Sample: {}'.format(scans_new[scan].stem))
+                                print('Result for Sample: {}'.format(scans_new[scan][0].stem))
 
                                 if sampleType == 1:
-                                    finder.severity_carbon(baseline)
+                                    finder.severity_carbon(baseline, grouping)
 
                                 if sampleType == 2:
-                                    finder.severity_metal_coated(baseline)
+                                    finder.severity_metal_coated(baseline,grouping)
                             
 #                    exit()
 

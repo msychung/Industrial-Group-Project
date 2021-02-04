@@ -87,7 +87,7 @@ class linefinder:
             ax[1][1].set(xlabel='Pixel Number', ylabel='Pixel Value', title='Values along {}th row \n of blurred sample'.format(self.row))
 
             plt.show()
-
+        print(sample_blur)
         return sample_blur
 
 
@@ -259,7 +259,7 @@ class linefinder:
 
 
 
-    def severity_carbon(self, baseline):
+    def severity_carbon(self, baseline, group = 'high'):
         '''
         Determines the severity of machine direction lines in a sample of a carbon veil nonwoven.
         
@@ -275,13 +275,19 @@ class linefinder:
         x = linefinder.blur_sample_gauss(self, False)
         y = linefinder.scipy_peaks(self, False)
 
-        upper_bound = 5.661   # Highest mean prominence across data set
-        lower_bound = 2.167   # Lowest mean prominence across data set
+        if group == 'high':
+
+            upper_bound = 5.661   # Highest mean prominence across data set
+            lower_bound = 2.167   # Lowest mean prominence across data set
+        
+        if group == 'low':
+            upper_bound = 123
+            lower_bound = 123 #OBVIOUSLY THESE NEED TO CHANGE
 
         prominences = peak_prominences(x[self.row], y)[0]
         mean_prominence = np.mean(prominences)
 
-        out_of_10 = ((mean_prominence - lower_bound)/(higher_bound - lower_bound)) * 10
+        out_of_10 = ((mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
         if mean_prominence >= baseline:
@@ -297,7 +303,7 @@ class linefinder:
 
 
 
-    def severity_metal_coated(self, baseline):
+    def severity_metal_coated(self, baseline, group):
 
         '''
         Determines the severity of machine direction lines in a sample of a metal coated carbon veil nonwoven.
@@ -312,14 +318,19 @@ class linefinder:
        
         x = linefinder.blur_sample_gauss(self, False)
         y = linefinder.scipy_peaks(self, False)
+        if group == 'high':
 
-        upper_bound = 10.9  # Highest mean prominence across data set
-        lower_bound = 4.00  # Lowest mean prominence across data set
-
+            upper_bound = 10.9  # Highest mean prominence across data set
+            lower_bound = 4.00  # Lowest mean prominence across data set
+        
+        if group == 'low':
+            upper_bound = 10.9  # Highest mean prominence across data set
+            lower_bound = 4.00
+        
         prominences = peak_prominences(x[self.row],y)[0]
         mean_prominence = np.mean(prominences)
 
-        out_of_10 = ((mean_prominence - lower_bound)/(higher_bound - lower_bound)) * 10
+        out_of_10 = ((mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
         if mean_prominence >= baseline:
