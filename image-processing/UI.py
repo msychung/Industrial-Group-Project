@@ -274,7 +274,7 @@ while True:
                                 if sampleType == 2:
                                     finder.severity_metal_coated(baseline)
                             
-                    exit()
+#                    exit()
 
 
 
@@ -441,4 +441,14 @@ while True:
                             finder.severity_metal_coated(baseline)
 
                     
-            exit()
+#            exit()
+    
+    print("Respond 'quit' if you are finished and would like to quit the program. \n Or, respond 'again' if you would like to run the program again")
+    while True:
+        end_program = input('Enter your response here: ').lower()
+        if end_program == 'quit':
+            sys.exit()
+        elif end_program == 'again':
+            break
+        else:
+            print('Sorry, that response was not recognised, please try again')
