@@ -266,8 +266,7 @@ class linefinder:
             INPUTS:
             self
             baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails. More testing needs to be done to determine exactly what this value should be
-            view_plot - set True to view the output plot of the sample, pixel values and detected lines
-            
+            group - whether the sample is of a high or low areal weight
             RETURNS:
             inv_out_of_10 - a score out of 10, with 1 being the worst and 10 being the best
         '''
@@ -311,6 +310,7 @@ class linefinder:
             INPUTS:
             self
             baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails (more testing needed)
+            group - whether the sample is of a high or low areal weight 
         
             RETURNS:
             inv_out_of_10 - a score out of 10, with 1 being the worst and 10 being the best
