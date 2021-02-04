@@ -87,7 +87,7 @@ class linefinder:
             ax[1][1].set(xlabel='Pixel Number', ylabel='Pixel Value', title='Values along {}th row \n of blurred sample'.format(self.row))
 
             plt.show()
-        print(sample_blur)
+        
         return sample_blur
 
 
