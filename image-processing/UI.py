@@ -162,10 +162,7 @@ while True:
                         yesno_error()
                         continue
 
-                    elif test_now == 'no':
-                        print("Files have been saved for later analysis.")
-                        exit()
-
+                    
                     break 
 
                 while True:
@@ -291,7 +288,10 @@ while True:
 
                                     if sampleType == 2:
                                         finder.severity_metal_coated(baseline,grouping)
-             
+                elif test_now == 'no':
+                    print("Files have been saved for later analysis.")
+                    break
+
         
                                 
                        
@@ -331,9 +331,15 @@ while True:
                             continue
 
                         else:
+                            while True:
+                                grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
+                                if not (grouping == 'high' or grouping =='low'):
+                                    print('response not recognised, please respond with either high or low')
+                                    continue
+                                break
                             file = np.load(file_path, allow_pickle = True)
                             paths_saved.append(file_path)
-                            scans_saved.append(file)
+                            scans_saved.append([file,grouping])
 
                             print("File added successfully.")
                         no_file = True
@@ -365,7 +371,7 @@ while True:
 
                     if set_parameters == 'yes':
 
-                            original = scans_saved[scan]
+                            original = scans_saved[scan][0]
                             sigma = 1
                             row = 250
                             finder = linefinder(original, sigma, row)
@@ -374,10 +380,10 @@ while True:
                                 print('Result for Sample: {}'.format(paths_saved[scan].stem))
 
                                 if sampleType == 1:
-                                    finder.severity_carbon(4)
+                                    finder.severity_carbon(4, scans_saved[scan][1])
 
                                 if sampleType == 2:
-                                    finder.severity_metal_coated(6)
+                                    finder.severity_metal_coated(6, scans_saved[scan][1])
 
                                 name = str(paths_saved[scan].stem)
                                 finder.plot_nice(name = name)
@@ -386,10 +392,10 @@ while True:
                                 print('Result for Sample:  {}'.format(paths_saved[scan].stem))
 
                                 if sampleType == 1:
-                                    finder.severity_carbon(4)
+                                    finder.severity_carbon(4, scans_saved[scan][1])
 
                                 if sampleType == 2:
-                                    finder.severity_metal_coated(6)
+                                    finder.severity_metal_coated(6, scans_saved[scan][1])
 
 
                     elif set_parameters == 'no':
@@ -415,7 +421,7 @@ while True:
                                 print("Invalid input. Please ensure a whole number is entered.")
                                 continue
 
-                            original = scans_saved[scan]
+                            original = scans_saved[scan][0]
                             try:
                                 finder = linefinder(original, blur, row)
                             
@@ -440,32 +446,32 @@ while True:
 
 
                         if view_plot == 'yes':
-                            print('Result for Sample:  {}'.format(scans_saved[scan].stem))
+                            print('Result for Sample:  {}'.format(scans_saved[scan][0].stem))
 
                             if sampleType == 1:
-                                finder.severity_carbon(baseline) 
+                                finder.severity_carbon(baseline, scans_saved[scan][1]) 
 
                             if sampleType == 2:
-                                finder.severity_metal_coated(baseline)
+                                finder.severity_metal_coated(baseline, scans_saved[scan][1])
 
-                            name = str(scans_saved[scan].stem)
+                            name = str(scans_saved[scan][0].stem)
                             finder.plot_nice(name = name)
 
                         elif view_plot == 'no':
-                            print('Result for Sample: {}'.format(scans_saved[scan].stem))
+                            print('Result for Sample: {}'.format(scans_saved[scan][0].stem))
 
                             if sampleType == 1:
-                                finder.severity_carbon(baseline)
+                                finder.severity_carbon(baseline, scans_saved[scan][1])
 
                             if sampleType == 2:
-                                finder.severity_metal_coated(baseline)
+                                finder.severity_metal_coated(baseline, scans_saved[scan][1])
             break
         break
 
 
 
                         
-    #            exit()
+
     
     print("Respond 'quit' if you are finished and would like to quit the program. \n Or, respond 'again' if you would like to run the program again")
     while True:
