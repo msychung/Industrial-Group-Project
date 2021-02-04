@@ -1,16 +1,14 @@
 import math
-import skimage
 from skimage import io, viewer, color, data, filters, feature
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
+import os
 import os.path
-from pathlib import Path
 from linefinder import linefinder
 
-'''
-to do list:
+"""
+TF's to do list:
 -error handling
     - make it so the saved or new error handle doesnt make you repeat earlier questions?
     - ensure at least one sample as to be entered
@@ -21,284 +19,431 @@ to do list:
         - this second method will slow things down a lot, as severity will be running multiple times for each sample 
             - but everything is very very fast so far
 
-'''
+set_parameters variable docstring: 
+If set parameters is no, then the user wants to set their own custom parameters. These involve the following 3 values:
+- Sigma value for the Guassian blur, i.e. the standard deviation of the blue representing how blurred the sample gets
+- The row that is checked for peaks (lines then drawn at these peak positions)
+- The 'baseline', representing the upper bound for the average prominence. If average peak prominence exceeds this baseline value then the sample fails. Essentially a test for severity of MD lines. 
+"""
+
+# paths_new = []
+paths_saved = []
+scans_new = [] 
+scans_saved = []
+np_array_scans = []
+
+
+def yesno_error():
+    print("Sorry, that response was not recognised, please enter either 'yes' or 'no', and ensure correct spelling.")
+
 while True:
+    response = input("Please specify the path containing the sample scan files. Enter 'help' for further explanation: ")
+
+    if (response.lower() == 'help'):
+        print("Using file explorer on Windows, open the folder containing the scans. In the navigation bar at the top, right click on the name of the folder, and then click 'copy address as text'. \n The path should look something like 'D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi'")
+        continue
+
+    elif not Path(response).is_dir():
+        print("Path does not exist, please try again: ")
+        continue
+
+    elif Path(response).is_dir():
+        path_to_folder = response
+        break
+
+    else:
+        print("Path does not exist, please try again: ")
+        continue
+
+# path_to_folder = r"C:\\Users\\Melissa\\OneDrive - Lancaster University\\University\\Third Year\\PHYS 355\Sample Data\\Carbon Veil\Scans\\75dpi"
+# this is just here to save me pasting in the path every time i test run the code
+scans_folder = Path(path_to_folder) 
+
+# Edit this dictionary to change/add additional types of materials
+material_types = {1: 'Carbon Veil', 2: 'Metal-Coated Carbon Veil'}  
+keys = list(material_types.keys())
+values = list(material_types.values())
+
+
+print("What type of sample would you like to test? Enter", end=' ')
+
+for i in range(len(keys)):
+    if i == len(keys) - 1:
+        print(f"or {keys[i]} for {values[i]}. ")
+    else:
+        print(f"{keys[i]} for {values[i]},", end =' ') 
+
+print("NOTE: Only one type of sample can be tested at a time. In order to test multiple sample types, please re-run the program for each type.")
+
+
+while True:
+    sampleType_inp = input("Type of Sample:  ")
+    max_type = len(material_types)
+
+    try:
+        sampleType = int(sampleType_inp)
+
+    except:
+        print("Ensure an integer between 1 and {} inclusive is entered, please try again.".format(max_type))
+        continue
+
+    if not sampleType in range (1, max_type+1): 
+        print("This number does not correspond to a known sample type, please try again.")
+        continue
+
+    print("Please ensure samples are scanned at 75dpi. ")   # Think this is a bit restrictive? Maybe give a range or play around with similar resolutions to see if they give similar results?
+
+
     while True:
-        response = input('please specify the path for where this code is saved, to where the sample scans have been saved. If unsure what is meant by this, please respond "help":  ')
-        if (response == 'help') or (response == 'HELP') or (response == 'Help'):
-            print('Using file explorer on Widnows, open the folder containing the scans. In the naviagation bar at the top, rigt click on the name of the folder, and then click "copy address as text"\n the copied text should look something like: "D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi"' )
-            continue
-        if not Path(response).is_dir():
-            print('path was not recognised, please try again: ')
-            continue
-        if Path(response).is_dir():
-            path_to_folder = response
-            break
+        new_files = input("Enter new files, or use previously saved files? Respond with either 'new' or 'saved': ").lower()
 
-    paths = []
-    scans = [] 
-    scans_folder = Path(path_to_folder) 
-    np_array_scans = []
-    while True:
-        
-        sampleType_imp = input('What type of sample would you like to test? \n Enter 1 for Carbon, 2 for Metal-Coated Carbon... \n NOTE: only what type of sample can be tested at once, in order to test multiple types of sample, please re-run the program for each type \n Type of Sample:  ')
 
-        try:
-            sampleType = int(sampleType_imp)
-        except:
-            print('something went wrong. Please try again')
-            continue
+        while new_files == 'new':
+            files_to_load = input("How many files would you like to analyse? ")
+            
+            try:
+                int_files_to_load = int(files_to_load)
 
-        if sampleType > 2: #CHANGE THIS WHEN OTHER SAMPLE TYPES ARE ADDED!!!!!!!!
-            print('Sorry, number did not correspond to a known sample type, please try again')
-            continue
-
-        print('please ensure samples are scanned at 75dpi')
-        new_files = input('enter new files, or find lines in previously saved files? Respond with either new, or saved: ').lower()
-
-        if new_files == 'new':
-            files_to_load = input('How many files would you like to scan in: ')
-            int_files_to_load = int(files_to_load)
+            except:
+                print("Please ensure a single integer is entered.")
+                continue
 
             i = 1
             while i <= int_files_to_load:
-                filename_input = input('please type the name of file number {}: '.format(i))
+
+                filename_input = input("Please enter the name of file no. {}, including file extension: ".format(i))
                 filename = str(filename_input)
                 file = scans_folder / filename
+
                 if not file.exists():
-                    print('Sorry, this file does not exist, please retype including spaces, and the file suffix, e.g. .jpeg ')
-                    kill = input('if you have already entered all of your files, and the original number you typed was too high, please type quit now: ').lower()
+                    print("Sorry, this file does not exist. Please re-enter including any spaces, and the file extension, e.g. .jpeg")
+
+                    kill = input("If you have already entered all of your files, and the original number you entered was too high, please enter 'quit' now: ").lower
+                    
                     if kill == 'quit':
                         break
+                    break
+
                     continue
+
                 else:
-                    scans.append(file)
-                    print('file added')
+                    scans_new.append(file)
+                    print("File no. {} added successfully.".format(i))
                     i += 1 
 
-            for scan in range(len(scans)):
-                file = io.imread(fname=scans[scan], as_gray=True)
-                np.save('{}.npy'.format(scans[scan]), file, allow_pickle=True) #would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
+            for scan in range(len(scans_new)):
+
+                file = io.imread(fname=scans_new[scan], as_gray=True)
+                np.save('{}.npy'.format(scans_new[scan]), file, allow_pickle=True) # Would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
                 np_array_scans.append(file)
 
-            print('Please respond Yes or no to the following questions')
+
+            print("Please respond 'yes' or 'no' to the following questions:")
+
             while True:
-                test_now = input('Would you like to test your inputted scans for lines? If no, files are saved for later use ').lower()
-                if not (test_now == 'yes' or test_now =='no'):
-                    print('Response was not recognised, please try again, and respond with yes or no.')
-                    continue
-                break
+                test_now = input("Would you like to test your files for machine direction lines now? If 'no', files are saved for later use. ").lower()
             
-            while True:
-                set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters) ').lower()
-                if not (set_paramaters == 'yes' or set_paramaters =='no'):
-                    print('Response was not recognised, please try again, and respond with yes or no.')
+                if not test_now in ('yes', 'no'):
+                    yesno_error()
                     continue
-                break
-            
+
+                elif test_now == 'no':
+                    print("Files have been saved for later analysis.")
+                    exit()
+
+                break 
+
             while True:
-                view_plot = input('Would you like to view the output plot from the linefinder? ').lower()
-                if not (view_plot == 'yes' or view_plot =='no'):
-                    print('Response was not recognised, please try again, and respond with yes or no.')
+                view_plot = input("Would you like to view the output plot from the analysis software? ").lower()
+
+                if not view_plot in ('yes', 'no'):
+                    yesno_error()
                     continue
+
                 break
+
+            while True:
+                set_parameters = input("Would you like to use preset values or set your own parameters? ('yes' for presets, 'no' for custom parameters) ").lower()
+
+                if not set_parameters in ('yes', 'no'):
+                    yesno_error()
+                    continue
+
+                break
+
+
 
             if test_now == 'yes':
-                for scan in range(len(np_array_scans)):
-                    if set_paramaters == 'yes':
-                        original = np_array_scans[scan]
-                        sigma = 1
-                        row = 200
-                        finder = linefinder(original, sigma, row)
-                        if view_plot == 'yes':
-                            print('Result for Sample {}'.format(scans[scan].stem))
-                            if sampleType == 1:
-                                finder.severity_carbon(4,False)
-                            if sampleType == 2:
-                                finder.severity_metal_coated(6)
-                            name = str(scans[scan].stem)
-                            finder.plot_nice(name = name)
-                        elif view_plot == 'no':
-                            print('Result for Sample {}'.format(scans[scan].stem))
-                            if sampleType == 1:
-                                finder.severity_carbon(4,False)
-                            if sampleType == 2:
-                                finder.severity_metal_coated(6)
-                    if set_paramaters == 'no':
-                        while True:
-                            blur_input = input('Set sigma value for gaussian blur: ')
-                            try:
-                                blur = int(blur_input)
-                            except:
-                                print('Response for sigma value for gaussian blur not recognised \n Please try again, ensuring value is in number format - i.e. "2"')
-                                continue
-                            
-                            row_input = input('Set row number that is checked: ')
-                            try:
-                                row = int(row_input)
-                            except:
-                                print('Response for row number not recognised \n Please try again, ensuring value is in number format - i.e. "200"')
-                                continue
-                            
-                            baseline_input = input('How severe do lines need to be in order to fail the sample ? \n Note: 4  is the reccommended value for Sample Type 1 \n 6 is the recommended value for Sample Type 2 \n Enter Value:  ')
-                            try:
-                                baseline = int(baseline_input)
-                            except:
-                                print('Response for baseline not recognised \n Please try again, ensuring value is in number format - i.e. "2"')
-                                continue
-                        
-                        
+
+                    for scan in range(len(np_array_scans)):
+
+                        if set_parameters == 'yes':
+
                             original = np_array_scans[scan]
-                            try:
-                                finder = linefinder(original, blur, row)
-                            except ValueError:
-                                print('Row index was out of bounds of the sample. The maximum row value is {}. Please try again'.format(len(original)))
-                                continue
-                            except:
-                                print('Something went wrong, please try again!')
-                                continue
-                            break
-                        
-                        if view_plot == 'yes':
-                            print('Result for Sample:  {}'.format(scans[scan].stem))
-                            if sampleType == 1:
-                                finder.severity_carbon(baseline,False) #still false so that plot_nice can be used
-                            if sampleType ==2:
-                                finder.severity_metal_coated(6)
-                            name = str(scans[scan].stem)
-                            finder.plot_nice(name)
-                        elif view_plot == 'no':
-                            print('Result for Sample: {}'.format(scans[scan].stem))
-                            if sampleType == 1:
-                                finder.severity_carbon(baseline,False)
-                            if sampleType == 2:
-                                finder.severity_metal_coated(baseline)
-            if test_now == 'no':
+                            sigma = 1
+                            row = 250
+                            finder = linefinder(original, sigma, row)
 
-                print('files have been saved for later use')
-            
-            break
+                            if view_plot == 'yes':
+                                print('Result for Sample {}'.format(scans_new[scan].stem))
+
+                                if sampleType == 1:
+                                    finder.severity_carbon(4)
+
+                                if sampleType == 2:
+                                    finder.severity_metal_coated(6)
+
+                                name = str(scans_new[scan].stem)
+                                finder.plot_nice(name = name)
+
+                            elif view_plot == 'no':
+                                print('Result for Sample {}'.format(scans_new[scan].stem))
+
+                                if sampleType == 1:
+                                    finder.severity_carbon(4)
+
+                                if sampleType == 2:
+                                    finder.severity_metal_coated(6)
+
+
+                        elif set_parameters == 'no':
+
+                            while True:
+                                blur_input = input("Set sigma value for Gaussian blur: ")
+                                try:
+                                    blur = float(blur_input)
+                                    break
+                                except:
+                                    print("Invalid input. Please ensure a number is entered.")
+                                    continue
+
+                            while True:
+                                row_input = input("Set row number to be analysed: ")
+                                try:
+                                    row = int(row_input)
+                                    if row < 1:
+                                        print("Invalid input. Please ensure a positive integer is entered.")
+                                        continue
+
+                                except:
+                                    print("Invalid input. Please ensure a whole number is entered.")
+                                    continue
+
+                                original = np_array_scans[scan]
+                                try:
+                                    finder = linefinder(original, blur, row)
+                                
+                                except:
+                                    print('Row index was out of bounds of the sample. The maximum row value is {}. Please try again'.format(len(original)))
+                                    continue
+                                
+                                break
+
+                            while True:
+                                baseline_input = input('What severity out of 10 is required to fail a sample? \n Recommendations: 4 for Carbon Veil \n 6 for Metal-Coated Carbon Veil \n Enter Value:  ')
+                                try:
+                                    baseline = float(baseline_input)    #got rid of divide by 2 for now
+                                    if baseline < 1:
+                                        print("Invalid input. Please ensure a positive number is entered.")
+                                        continue
+                                    break
+
+                                except:
+                                    print("Invalid input. Please ensure a number is entered.")
+                                    continue
+
+
+                            if view_plot == 'yes':
+                                print('Result for Sample:  {}'.format(scans_new[scan].stem))
+
+                                if sampleType == 1:
+                                    finder.severity_carbon(baseline) 
+
+                                if sampleType == 2:
+                                    finder.severity_metal_coated(baseline)
+
+                                name = str(scans_new[scan].stem)
+                                finder.plot_nice(name = name)
+
+                            elif view_plot == 'no':
+                                print('Result for Sample: {}'.format(scans_new[scan].stem))
+
+                                if sampleType == 1:
+                                    finder.severity_carbon(baseline)
+
+                                if sampleType == 2:
+                                    finder.severity_metal_coated(baseline)
+                            
+#                    exit()
+
+
+
+
+        while new_files == 'saved':
+
+            no_file = False
+
+            while True:
+
+                filename_input = input("Please enter the filename of the samples you would like to scan, then enter 'STOP' when all names have been entered. If you would like to clear previously saved files, enter 'CLEAR' then re-run the script. ")
+
+                if filename_input.lower() == 'stop' and no_file == False:
+                    print("Please ensure at least one file is selected for analysis before proceeding. ")
                 
-
-
-
-        elif new_files == 'saved':
-
-            while True:
-                filename = input('Please enter the filename of the samples you would like to scan, or STOP when all names have been entered: ')
-                if filename == 'STOP' or filename == 'Stop' or filename == 'stop':
+                elif filename_input.lower() == 'stop':
                     break
+
+
+                elif filename_input.lower() == 'clear':
+                    scans_dir = os.listdir(scans_folder)
+                    for npyscan in scans_dir:
+                        if npyscan.endswith(".npy"):
+                            os.remove(os.path.join(scans_folder, npyscan))
+
+                    print("Saved files cleared.")
+
                 else:
-                    filename_npy = filename + '.npy'
+                    filename_npy = filename_input + '.npy'
                     file_path = scans_folder / filename_npy
+
                     if not file_path.exists():
-                        print('Sorry, this file does not exist, please retype including spaces, case sensitivity, and the file suffix, e.g. .jpeg')
+                        print("Sorry, this file does not exist. Please re-enter including any spaces, and the file extension, e.g. .jpeg")
                         continue
+
                     else:
-                        file = np.load(file_path, allow_pickle= True)
-                        paths.append(file_path)
-                        scans.append(file)
-                        print('file added')
+                        file = np.load(file_path, allow_pickle = True)
+                        paths_saved.append(file_path)
+                        scans_saved.append(file)
 
-            print('Please respond Yes or no to the following questions')
+                        print("File added successfully.")
+                    no_file = True
+                        # print(paths_saved)
+
+
+            print("Please respond 'yes' or 'no' to the following questions:")
+
             while True:
-                set_paramaters = input('Would you like to set your own paramters or use the presets? (yes for presets, no for custom paramaters) ').lower()
-                if not (set_paramaters == 'yes' or set_paramaters =='no'):
-                    print('Response was not recognised, please try again, and respond with yes or no.')
+                view_plot = input("Would you like to view the output plot from the analysis software? ").lower()
+
+                if not view_plot in ('yes', 'no'):
+                    yesno_error()
                     continue
-                break
-            
-            while True:
-                view_plot = input('Would you like to view the output plot from the linefinder? ').lower()
-                if not (view_plot == 'yes' or view_plot =='no'):
-                    print('Response was not recognised, please try again, and respond with yes or no.')
-                    continue
+
                 break
 
-            for scan in range(len(scans)):
-                if set_paramaters == 'yes':
-                        original = scans[scan]
+            while True:
+                set_parameters = input("Would you like to use preset values or set your own parameters? ('yes' for presets, 'no' for custom parameters) ").lower()
+
+                if not set_parameters in ('yes', 'no'):
+                    yesno_error()
+                    continue
+
+                break
+
+
+            for scan in range(len(scans_saved)):
+
+                if set_parameters == 'yes':
+
+                        original = scans_saved[scan]
                         sigma = 1
-                        row = 200
+                        row = 250
                         finder = linefinder(original, sigma, row)
+
                         if view_plot == 'yes':
-                            print('Result for Sample: {}'.format(paths[scan].stem))
+                            print('Result for Sample: {}'.format(paths_saved[scan].stem))
+
                             if sampleType == 1:
-                                finder.severity_carbon(4,False)
+                                finder.severity_carbon(4)
+
                             if sampleType == 2:
                                 finder.severity_metal_coated(6)
 
-                            name = str(paths[scan].stem)
-                            finder.plot_nice(name)
+                            name = str(paths_saved[scan].stem)
+                            finder.plot_nice(name = name)
+
                         elif view_plot == 'no':
-                            print('Result for Sample:  {}'.format(paths[scan].stem))
+                            print('Result for Sample:  {}'.format(paths_saved[scan].stem))
+
                             if sampleType == 1:
-                                finder.severity_carbon(4,False)
+                                finder.severity_carbon(4)
+
                             if sampleType == 2:
                                 finder.severity_metal_coated(6)
 
-                if set_paramaters == 'no':
-                        '''
-                        If set paramaters is no, then the user wants to set there own custom parameters. These parameters are the sigma value for the guassian blur - how blurred the sample gets:
-                        the row that is checked for peaks
-                        and the 'baseline'. if the mean prominence of the peaks is higher than the baseline, then the sample fails, so this baseline is essentially how severe is the test! 
-                        '''
 
-                        while True:
-                            blur_input = input('Set sigma value for gaussian blur: ')
-                            try:
-                                blur = int(blur_input)
-                            except:
-                                print('Response for sigma value for gaussian blur not recognised \n Please try again, ensuring value is in number format - i.e. "2"')
+                elif set_parameters == 'no':
+
+                    while True:
+                        blur_input = input("Set sigma value for Gaussian blur: ")
+                        try:
+                            blur = float(blur_input)
+                            break
+                        except:
+                            print("Invalid input. Please ensure a number is entered.")
+                            continue
+
+                    while True:
+                        row_input = input("Set row number to be analysed: ")
+                        try:
+                            row = int(row_input)
+                            if row < 1:
+                                print("Invalid input. Please ensure a positive integer is entered.")
                                 continue
-                            
-                            row_input = input('Set row number that is checked: ')
-                            try:
-                                row = int(row_input)
-                            except:
-                                print('Response for row number not recognised \n Please try again, ensuring value is in number format - i.e. "200"')
-                                continue
-                            
-                            baseline_input = input('How severe do lines need to be in order to fail the sample ? \n Note: 4  is the reccommended value for Sample Type 1 \n        6 is the recommended value for Sample Type 2 \n Enter Value:  ')
-                            try:
-                                baseline = int(baseline_input)
-                            except:
-                                print('Response for baseline not recognised \n Please try again, ensuring value is in number format - i.e. "2"')
-                                continue
+
+                        except:
+                            print("Invalid input. Please ensure a whole number is entered.")
+                            continue
+
+                        original = scans_saved[scan]
+                        try:
+                            finder = linefinder(original, blur, row)
                         
+                        except:
+                            print('Row index was out of bounds of the sample. The maximum row value is {}. Please try again'.format(len(original)))
+                            continue
                         
-                            original = scans[scan]
-                            try:
-                                finder = linefinder(original, blur, row)
-                            except ValueError:
-                                print('Row index was out of bounds of the sample. The maximum row value is {}. Please try again'.format(len(original)))
-                                continue
-                            except:
-                                print('Something went wrong, please try again!')
+                        break
+
+                    while True:
+                        baseline_input = input('What severity out of 10 is required to fail a sample? \n Recommendations: 4 for Carbon Veil \n 6 for Metal-Coated Carbon Veil \n Enter Value:  ')
+                        try:
+                            baseline = float(baseline_input)    #got rid of divide by 2 for now
+                            if baseline < 1:
+                                print("Invalid input. Please ensure a positive number is entered.")
                                 continue
                             break
-                        if view_plot == 'yes':
-                            print('Result for Sample:  {}'.format(paths[scan].stem))
-                            if sampleType == 1:
-                                finder.severity_carbon(baseline,False)
-                            if sampleType == 2:
-                                finder.severity_metal_coated(baseline)
-                            name = str(paths[scan].stem)
-                            finder.plot_nice(name)
-                        elif view_plot == 'no':
-                            print('Result for Sample:  {}'.format(paths[scan].stem))
-                            if sampleType == 1:
-                                finder.severity_carbon(baseline,False)  
-                            if sampleType == 3:
-                                finder.severity_metal_coated(baseline)
-                             
-            break 
 
-        if not (new_files == 'new') or (new_files == 'saved'):
-            print('Sorry, that response was not recognised, please ensure correct spelling.')
-            continue
+                        except:
+                            print("Invalid input. Please ensure a number is entered.")
+                            continue
+
+
+                    if view_plot == 'yes':
+                        print('Result for Sample:  {}'.format(scans_saved[scan].stem))
+
+                        if sampleType == 1:
+                            finder.severity_carbon(baseline) 
+
+                        if sampleType == 2:
+                            finder.severity_metal_coated(baseline)
+
+                        name = str(scans_saved[scan].stem)
+                        finder.plot_nice(name = name)
+
+                    elif view_plot == 'no':
+                        print('Result for Sample: {}'.format(scans_saved[scan].stem))
+
+                        if sampleType == 1:
+                            finder.severity_carbon(baseline)
+
+                        if sampleType == 2:
+                            finder.severity_metal_coated(baseline)
+
+                    
+#            exit()
     
-    print('Respond quit, if you are finished and would like to quit the program. \nRespond again if you would like to run the program again')
+    print("Respond 'quit' if you are finished and would like to quit the program. \n Or, respond 'again' if you would like to run the program again")
     while True:
         end_program = input('Enter your response here: ').lower()
         if end_program == 'quit':
@@ -307,16 +452,3 @@ while True:
             break
         else:
             print('Sorry, that response was not recognised, please try again')
-
-
-
-
-
-
-
-
-
-        
-
-
-           
