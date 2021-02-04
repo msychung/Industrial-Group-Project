@@ -281,7 +281,7 @@ class linefinder:
         prominences = peak_prominences(x[self.row], y)[0]
         mean_prominence = np.mean(prominences)
 
-        out_of_10 = ((mean_prominence - lower_bound)/(higher_bound - lower_bound)) * 10
+        out_of_10 = ((mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
         if mean_prominence >= baseline:
@@ -319,7 +319,7 @@ class linefinder:
         prominences = peak_prominences(x[self.row],y)[0]
         mean_prominence = np.mean(prominences)
 
-        out_of_10 = ((mean_prominence - lower_bound)/(higher_bound - lower_bound)) * 10
+        out_of_10 = ((mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
         if mean_prominence >= baseline:
