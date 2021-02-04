@@ -147,8 +147,9 @@ while True:
             for scan in range(len(scans_new)):
 
                 file = io.imread(fname=scans_new[scan][0], as_gray=True)
+                grouping = scans_new[scan][1]
                 np.save('{}.npy'.format(scans_new[scan][0]), file, allow_pickle=True) # Would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
-                np_array_scans.append(file)
+                np_array_scans.append([file,grouping])
 
 
             print("Please respond 'yes' or 'no' to the following questions:")
