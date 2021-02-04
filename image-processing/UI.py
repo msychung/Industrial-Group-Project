@@ -13,9 +13,8 @@ from linefinder import linefinder
 to do list:
 -error handling
     - make it so the saved or new error handle doesnt make you repeat earlier questions?
-    - ensure at least one sample as to be entered
+    - ensure at least one sample has to be entered
 -input areal weight, and change linefinder based on areal weights
-- actually end the program when it ends
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
 
 '''
