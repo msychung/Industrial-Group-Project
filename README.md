@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="https://www.lancaster.ac.uk/media/lancaster-university/content-assets/images/fst/logos/Physicslogo.svg" width="450" height="125">
+  <img src="https://www.lancaster.ac.uk/media/lancaster-university/content-assets/images/fst/logos/Physicslogo.svg" width="350" height="95">
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://compositesuk.co.uk/sites/default/files/hub/logos/TFP%20logo%20new.PNG" width="130" height="130">
+  <img src="https://compositesuk.co.uk/sites/default/files/hub/logos/TFP%20logo%20new.PNG" width="100" height="100">
 </p>
 
 
