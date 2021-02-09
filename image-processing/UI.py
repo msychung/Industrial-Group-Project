@@ -13,9 +13,8 @@ TF's to do list:
 -error handling
     - no question repeat
     - ensure at least one sample has been entered
--input areal weight, and change linefinder based on areal weights
-    - two sections, high vs low?
-
+-add an option to test sample types across all areal weights 
+- change the boundaries in linefinder for metal coated
     Gave to MR:
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
 - add to plot_nice the numerical value of the lines (probably out of ten score is better?) 
