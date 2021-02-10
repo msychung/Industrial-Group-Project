@@ -40,7 +40,16 @@ np_array_scans = []
 def yesno_error():
     print("Sorry, that response was not recognised, please enter either 'yes' or 'no', and ensure correct spelling.")
 while True:
+    '''
+    the whole code is within a while true loop.
+    this is so that we can easily choose to run it again after it has been fully completed
+    '''
     while True:
+        '''
+        all of the user inputs are contained within a while true loop. 
+        the loop is broken if the input is recognised
+        the loop continues if not
+        '''
         response = input("Please specify the path containing the sample scan files. Enter 'help' for further explanation: ")
 
         if (response.lower() == 'help'):
@@ -121,6 +130,11 @@ while True:
                     file = scans_folder / filename
 
                     while True:
+                        '''
+                        this while true is so the user can define whther they want to test the sample against all samples of that type, or just ones in the same weight class
+
+                        it is a lot of print statements, watch out!
+                        '''
                         print('Would you like to compare {} against samples of a similar areal weight, or all samples of that type?'.format(filename_input))
                         allOrWeight = input('Please respond all, for all samples of that type, weight, for testing samples based on weight, or help for more information \nResponse: ').lower()
                         if not (allOrWeight == 'help' or allOrWeight == 'weight' or allOrWeight == 'all'):
