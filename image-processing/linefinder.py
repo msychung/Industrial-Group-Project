@@ -282,7 +282,14 @@ class linefinder:
         if group == 'low':
             upper_bound = 5.661016949152542
             lower_bound =  4.530612244897959
-
+        
+        if group == 'dm':
+            '''
+            dm is used as it is an appreviation for doesn't matter 
+            this uses to overall higher and lower bound for the selected sample type
+            '''
+            upper_bound = 5.661016949152542
+            lower_bound = 2.16
         prominences = peak_prominences(x[self.row], y)[0]
         mean_prominence = np.mean(prominences)
 
@@ -326,6 +333,14 @@ class linefinder:
         if group == 'low':
             upper_bound = 10.9  # Highest mean prominence across data set
             lower_bound = 4.00
+        
+        if group == 'dm':
+            '''
+            dm is used as it is an appreviation for doesn't matter 
+            this uses to overall higher and lower bound for the selected sample type
+            '''
+            upper_bound = 5.661016949152542
+            lower_bound = 2.16
         
         prominences = peak_prominences(x[self.row],y)[0]
         mean_prominence = np.mean(prominences)

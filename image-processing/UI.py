@@ -12,9 +12,10 @@ from linefinder import linefinder
 TF's to do list:
 -error handling
     - no question repeat
-    - ensure at least one sample has been entered
+    - ensure at least one sample has been entered (think Melissa did this?)
 -add an option to test sample types across all areal weights 
 - change the boundaries in linefinder for metal coated
+- change the baseline 
     Gave to MR:
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
 - add to plot_nice the numerical value of the lines (probably out of ten score is better?) 
@@ -120,10 +121,25 @@ while True:
                     file = scans_folder / filename
 
                     while True:
-                        grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
-                        if not (grouping == 'high' or grouping =='low'):
-                            print('response not recognised, please respond with either high or low')
+                        print('Would you like to compare {} against samples of a similar areal weight, or all samples of that type?'.format(filename_input))
+                        allOrWeight = input('Please respond all, for all samples of that type, weight, for testing samples based on weight, or help for more information \nResponse: ').lower()
+                        if not (allOrWeight == 'help' or allOrWeight == 'weight' or allOrWeight == 'all'):
+                            print('response not recognised, please respond with either weight, all, or help')
                             continue
+                        if allOrWeight == 'help':
+                            print('Samples can either be tested against all samples of the same type, or just samples of a similar areal weight. \nThis will lead to a different result for the out of ten score for the sample')
+                            print('Testing samples against all of the same type will give more information on the visible appearance of the machine direction lines')
+                            print('As there is an apparent dependence of machine direction lines on areal weight, comparing samples in a similar areal weight class will give more information on how one sample compares to similar samples.')
+                            continue
+
+                        if allOrWeight == 'weight':
+                            grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
+                            if not (grouping == 'high' or grouping =='low'):
+                                print('response not recognised, please respond with either high or low')
+                                continue
+
+                        if allOrWeight == 'all':
+                            grouping = 'dm'
                         break
 
                     if not file.exists():
@@ -331,18 +347,34 @@ while True:
 
                         else:
                             while True:
-                                grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
-                                if not (grouping == 'high' or grouping =='low'):
-                                    print('response not recognised, please respond with either high or low')
+                                print('Would you like to compare {} against samples of a similar areal weight, or all samples of that type?'.format(filename_input))
+                                allOrWeight = input('Please respond all, for all samples of that type, weight, for testing samples based on weight, or help for more information \nResponse: ').lower()
+                                if not (allOrWeight == 'help' or allOrWeight == 'weight' or allOrWeight == 'all'):
+                                    print('response not recognised, please respond with either weight, all, or help')
                                     continue
+                                if allOrWeight == 'help':
+                                    print('Samples can either be tested against all samples of the same type, or just samples of a similar areal weight. \nThis will lead to a different result for the out of ten score for the sample')
+                                    print('Testing samples against all of the same type will give more information on the visible appearance of the machine direction lines')
+                                    print('As there is an apparent dependence of machine direction lines on areal weight, comparing samples in a similar areal weight class will give more information on how one sample compares to similar samples.')
+                                    continue
+
+                                if allOrWeight == 'weight':
+                                    grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
+                                    if not (grouping == 'high' or grouping =='low'):
+                                        print('response not recognised, please respond with either high or low')
+                                        continue
+
+                                if allOrWeight == 'all':
+                                    grouping = 'dm'
                                 break
+                                
                             file = np.load(file_path, allow_pickle = True)
                             paths_saved.append(file_path)
                             scans_saved.append([file,grouping])
 
                             print("File added successfully.")
                         no_file = True
-                            # print(paths_saved)
+                        
 
 
                 print("Please respond 'yes' or 'no' to the following questions:")
