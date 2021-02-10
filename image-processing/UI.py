@@ -13,9 +13,9 @@ TF's to do list:
 -error handling
     - no question repeat
     - ensure at least one sample has been entered (think Melissa did this?)
--add an option to test sample types across all areal weights 
+
 - change the boundaries in linefinder for metal coated
-- change the baseline 
+- change the baseline based on areal weight for pass/fail boundaries?
     Gave to MR:
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
 - add to plot_nice the numerical value of the lines (probably out of ten score is better?) 
@@ -137,7 +137,7 @@ while True:
                             if not (grouping == 'high' or grouping =='low'):
                                 print('response not recognised, please respond with either high or low')
                                 continue
-
+                            break
                         if allOrWeight == 'all':
                             grouping = 'dm'
                         break
@@ -145,7 +145,7 @@ while True:
                     if not file.exists():
                         print("Sorry, this file does not exist. Please re-enter including any spaces, and the file extension, e.g. .jpeg")
 
-                        kill = input("If you have already entered all of your files, and the original number you entered was too high, please enter 'quit' now: ").lower
+                        kill = input("If you have already entered all of your files, and the original number you entered was too high, please enter 'quit' now: ").lower()
                         
                         if kill == 'quit':
                             break
@@ -510,6 +510,14 @@ while True:
         if end_program == 'quit':
             sys.exit()
         elif end_program == 'again':
+            '''
+            need to "empty" the lists that have since been populated otherwise multiple tests are ran. 
+            '''
+            paths_saved = []
+            scans_new = [] 
+            scans_saved = []
+            np_array_scans = []
+
             break
         else:
             print('Sorry, that response was not recognised, please try again')

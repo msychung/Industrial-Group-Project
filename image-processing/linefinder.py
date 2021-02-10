@@ -7,7 +7,11 @@ import numpy as np
 from scipy import ndimage
 from scipy.signal import find_peaks, peak_prominences
 import random
-
+import warnings
+warnings.filterwarnings("ignore")
+'''
+using this makes me VERY uncomfortable. 
+'''
 '''
 ADD-INS - ADD IN A REPEATED FOR A DIFFERENT ROW, AND THEN CAN CHECK THE EXISTENCE OF A LINE BY CHECKING IF A MAXIMUM IS IN BOTH OF THE ROWS (Can expand to >2 rows)
 '''
@@ -51,7 +55,7 @@ class linefinder:
 
    
 
-    def blur_sample_gauss(self, view_plot=True):
+    def blur_sample_gauss(self, view_plot=False):
         '''
         Applies a Gaussian blur to the original sample. This is used to reduce and smooth out noise in the sample.
 
@@ -92,7 +96,7 @@ class linefinder:
         return sample_blur
 
 
-    def scipy_peaks(self, row, view_plot=True):
+    def scipy_peaks(self, row, view_plot=False):
         '''
         Finds pixel value peaks along the chosen row, using the scipy find_peaks function.
 
@@ -107,9 +111,9 @@ class linefinder:
             peak_positions - x positions of the peaks along the chosen row 
 
           '''
-        
+        row_int = int(row)
         x = linefinder.blur_sample_gauss(self, False)
-        peak_positions = find_peaks(x[row])
+        peak_positions = find_peaks(x[row_int])
 
         if view_plot == True:
 
@@ -120,7 +124,7 @@ class linefinder:
             ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
 
             ax[1].plot(np.arange(0,np.size(x[self.row]), 1), x[self.row])
-            ax[1].set(xlabel='', ylabel='', title = 'Values along row {} of blurred sample'.format(self.row))
+            ax[1].set(xlabel='', ylabel='', title = 'Values along row {} of blurred sample'.format(row))
 
             ax[2].imshow(self.original, cmap='gray')
             ax[2].vlines(x=peak_positions[0], color = 'red', ymin=0, ymax=len(x), linewidth=1)
@@ -132,7 +136,7 @@ class linefinder:
 
 
 
-    def find_prominences(self, view_plot = True):
+    def find_prominences(self, view_plot = False):
         '''
         Finds the prominence of the peaks found by the scipy_peaks method.
 
@@ -173,7 +177,7 @@ class linefinder:
 
 
 
-    def find_lines_with_exclusions(self, view_plot = True, distance = False, min_prominences = False):
+    def find_lines_with_exclusions(self, view_plot = False, distance = False, min_prominences = False):
         '''
     --- need to raise an error if inputs are neither integers nor booleans ---
     find lines within the sample, excluding some of the peaks from the original find peaks method, in an attempt to make sure that peaks aren't found when there are no visible peaks --- 
@@ -301,10 +305,10 @@ class linefinder:
         '''
         
 
-        row_rand_one = random.random() * len(self.original)
+        row_rand_one = int(round(random.random() * len(self.original)))
         peaks_row_rand_one = linefinder.scipy_peaks(self, row_rand_one, False)
         
-        row_rand_two = random.random() * len(self.original)
+        row_rand_two = int(round(random.random() * len(self.original)))
         peaks_row_rand_two = linefinder.scipy_peaks(self, row_rand_two, False)
 
         prominences_row_rand_one = peak_prominences(x[row_rand_one],peaks_row_rand_one)[0]
