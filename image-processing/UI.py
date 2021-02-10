@@ -12,10 +12,10 @@ from linefinder import linefinder
 TF's to do list:
 -error handling
     - no question repeat
-    - ensure at least one sample has been entered
--input areal weight, and change linefinder based on areal weights
-    - two sections, high vs low?
+    - ensure at least one sample has been entered (think Melissa did this?)
 
+- change the boundaries in linefinder for metal coated
+- change the baseline based on areal weight for pass/fail boundaries?
     Gave to MR:
 - add some wait statements in so people aren't smacked with loads print statements whenever an error loops back to the start
 - add to plot_nice the numerical value of the lines (probably out of ten score is better?) 
@@ -40,7 +40,16 @@ np_array_scans = []
 def yesno_error():
     print("Sorry, that response was not recognised, please enter either 'yes' or 'no', and ensure correct spelling.")
 while True:
+    '''
+    the whole code is within a while true loop.
+    this is so that we can easily choose to run it again after it has been fully completed
+    '''
     while True:
+        '''
+        all of the user inputs are contained within a while true loop. 
+        the loop is broken if the input is recognised
+        the loop continues if not
+        '''
         response = input("Please specify the path containing the sample scan files. Enter 'help' for further explanation: ")
 
         if (response.lower() == 'help'):
@@ -121,16 +130,36 @@ while True:
                     file = scans_folder / filename
 
                     while True:
-                        grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
-                        if not (grouping == 'high' or grouping =='low'):
-                            print('response not recognised, please respond with either high or low')
+                        '''
+                        this while true is so the user can define whther they want to test the sample against all samples of that type, or just ones in the same weight class
+
+                        it is a lot of print statements, watch out!
+                        '''
+                        print('Would you like to compare {} against samples of a similar areal weight, or all samples of that type?'.format(filename_input))
+                        allOrWeight = input('Please respond all, for all samples of that type, weight, for testing samples based on weight, or help for more information \nResponse: ').lower()
+                        if not (allOrWeight == 'help' or allOrWeight == 'weight' or allOrWeight == 'all'):
+                            print('response not recognised, please respond with either weight, all, or help')
                             continue
+                        if allOrWeight == 'help':
+                            print('Samples can either be tested against all samples of the same type, or just samples of a similar areal weight. \nThis will lead to a different result for the out of ten score for the sample')
+                            print('Testing samples against all of the same type will give more information on the visible appearance of the machine direction lines')
+                            print('As there is an apparent dependence of machine direction lines on areal weight, comparing samples in a similar areal weight class will give more information on how one sample compares to similar samples.')
+                            continue
+
+                        if allOrWeight == 'weight':
+                            grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
+                            if not (grouping == 'high' or grouping =='low'):
+                                print('response not recognised, please respond with either high or low')
+                                continue
+                            break
+                        if allOrWeight == 'all':
+                            grouping = 'dm'
                         break
 
                     if not file.exists():
                         print("Sorry, this file does not exist. Please re-enter including any spaces, and the file extension, e.g. .jpeg")
 
-                        kill = input("If you have already entered all of your files, and the original number you entered was too high, please enter 'quit' now: ").lower
+                        kill = input("If you have already entered all of your files, and the original number you entered was too high, please enter 'quit' now: ").lower()
                         
                         if kill == 'quit':
                             break
@@ -332,18 +361,34 @@ while True:
 
                         else:
                             while True:
-                                grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
-                                if not (grouping == 'high' or grouping =='low'):
-                                    print('response not recognised, please respond with either high or low')
+                                print('Would you like to compare {} against samples of a similar areal weight, or all samples of that type?'.format(filename_input))
+                                allOrWeight = input('Please respond all, for all samples of that type, weight, for testing samples based on weight, or help for more information \nResponse: ').lower()
+                                if not (allOrWeight == 'help' or allOrWeight == 'weight' or allOrWeight == 'all'):
+                                    print('response not recognised, please respond with either weight, all, or help')
                                     continue
+                                if allOrWeight == 'help':
+                                    print('Samples can either be tested against all samples of the same type, or just samples of a similar areal weight. \nThis will lead to a different result for the out of ten score for the sample')
+                                    print('Testing samples against all of the same type will give more information on the visible appearance of the machine direction lines')
+                                    print('As there is an apparent dependence of machine direction lines on areal weight, comparing samples in a similar areal weight class will give more information on how one sample compares to similar samples.')
+                                    continue
+
+                                if allOrWeight == 'weight':
+                                    grouping = input("is the file '{}' a scan of a low, or high areal weight sample? ".format(filename_input)).lower()
+                                    if not (grouping == 'high' or grouping =='low'):
+                                        print('response not recognised, please respond with either high or low')
+                                        continue
+
+                                if allOrWeight == 'all':
+                                    grouping = 'dm'
                                 break
+                                
                             file = np.load(file_path, allow_pickle = True)
                             paths_saved.append(file_path)
                             scans_saved.append([file,grouping])
 
                             print("File added successfully.")
                         no_file = True
-                            # print(paths_saved)
+                        
 
 
                 print("Please respond 'yes' or 'no' to the following questions:")
@@ -479,6 +524,14 @@ while True:
         if end_program == 'quit':
             sys.exit()
         elif end_program == 'again':
+            '''
+            need to "empty" the lists that have since been populated otherwise multiple tests are ran. 
+            '''
+            paths_saved = []
+            scans_new = [] 
+            scans_saved = []
+            np_array_scans = []
+
             break
         else:
             print('Sorry, that response was not recognised, please try again')
