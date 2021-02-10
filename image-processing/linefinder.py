@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage
 from scipy.signal import find_peaks, peak_prominences
+import random
 
 '''
 ADD-INS - ADD IN A REPEATED FOR A DIFFERENT ROW, AND THEN CAN CHECK THE EXISTENCE OF A LINE BY CHECKING IF A MAXIMUM IS IN BOTH OF THE ROWS (Can expand to >2 rows)
@@ -91,7 +92,7 @@ class linefinder:
         return sample_blur
 
 
-    def scipy_peaks(self, view_plot=True):
+    def scipy_peaks(self, row, view_plot=True):
         '''
         Finds pixel value peaks along the chosen row, using the scipy find_peaks function.
 
@@ -108,7 +109,7 @@ class linefinder:
           '''
         
         x = linefinder.blur_sample_gauss(self, False)
-        peak_positions = find_peaks(x[self.row])
+        peak_positions = find_peaks(x[row])
 
         if view_plot == True:
 
@@ -272,7 +273,6 @@ class linefinder:
         '''
         
         x = linefinder.blur_sample_gauss(self, False)
-        y = linefinder.scipy_peaks(self, False)
 
         if group == 'high':
 
@@ -290,20 +290,42 @@ class linefinder:
             '''
             upper_bound = 5.661016949152542
             lower_bound = 2.16
-        prominences = peak_prominences(x[self.row], y)[0]
-        mean_prominence = np.mean(prominences)
+        
+        original_row = self.row
+        peaks_original_row = linefinder.scipy_peaks(self, original_row, False)
+        prominences_original_row = peak_prominences(x[original_row],peaks_original_row)[0]
+        mean_prominence_original_row = np.mean(prominences_original_row)
 
-        out_of_10 = ((mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
+        '''
+        for some extra accuracy, there are two random rows chosen in order to get a mean value for prominence 
+        '''
+        
+
+        row_rand_one = random.random() * len(self.original)
+        peaks_row_rand_one = linefinder.scipy_peaks(self, row_rand_one, False)
+        
+        row_rand_two = random.random() * len(self.original)
+        peaks_row_rand_two = linefinder.scipy_peaks(self, row_rand_two, False)
+
+        prominences_row_rand_one = peak_prominences(x[row_rand_one],peaks_row_rand_one)[0]
+        prominences_row_rand_two = peak_prominences(x[row_rand_two],peaks_row_rand_two)[0]
+
+        mean_rand_one = np.mean(prominences_row_rand_one)
+        mean_rand_two = np.mean(prominences_row_rand_two)
+
+        overall_mean = np.mean([mean_prominence_original_row, mean_rand_one, mean_rand_two])
+
+        out_of_10 = ((overall_mean - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
-        if mean_prominence >= baseline:
-            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+        if overall_mean>= baseline:
+            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(overall_mean, inv_out_of_10))
 
-        elif baseline - 1 < mean_prominence < baseline + 1:
+        elif baseline - 1 < overall_mean < baseline + 1:
             print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
 
         else:
-            print('Sample has passed. Severity of lines is {}, which gives the sample a score of {} out of 10'.format(mean_prominence, inv_out_of_10))
+            print('Sample has passed. Severity of lines is {}, which gives the sample a score of {} out of 10'.format(overall_mean, inv_out_of_10))
 
         return inv_out_of_10
 
@@ -324,7 +346,7 @@ class linefinder:
         '''
        
         x = linefinder.blur_sample_gauss(self, False)
-        y = linefinder.scipy_peaks(self, False)
+        
         if group == 'high':
 
             upper_bound = 10.9  # Highest mean prominence across data set
@@ -339,23 +361,44 @@ class linefinder:
             dm is used as it is an appreviation for doesn't matter 
             this uses to overall higher and lower bound for the selected sample type
             '''
-            upper_bound = 5.661016949152542
-            lower_bound = 2.16
+            upper_bound = 10.9
+            lower_bound = 4.00
         
-        prominences = peak_prominences(x[self.row],y)[0]
-        mean_prominence = np.mean(prominences)
+        original_row = self.row
+        peaks_original_row = linefinder.scipy_peaks(self, original_row, False)
+        prominences_original_row = peak_prominences(x[original_row],peaks_original_row)[0]
+        mean_prominence_original_row = np.mean(prominences_original_row)
+        '''
+        for some extra accuracy, there are two random rows chosen in order to get a mean value for prominence 
+        '''
+        
 
-        out_of_10 = ((mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
+        row_rand_one = random.random() * len(self.original)
+        peaks_row_rand_one = linefinder.scipy_peaks(self, row_rand_one, False)
+        
+        row_rand_two = random.random() * len(self.original)
+        peaks_row_rand_two = linefinder.scipy_peaks(self, row_rand_two, False)
+
+        prominences_row_rand_one = peak_prominences(x[row_rand_one],peaks_row_rand_one)[0]
+        prominences_row_rand_two = peak_prominences(x[row_rand_two],peaks_row_rand_two)[0]
+
+        mean_rand_one = np.mean(prominences_row_rand_one)
+        mean_rand_two = np.mean(prominences_row_rand_two)
+
+        overall_mean = np.mean([mean_prominence_original_row, mean_rand_one, mean_rand_two])
+
+
+        out_of_10 = ((overall_mean - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
-        if mean_prominence >= baseline:
-            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(mean_prominence, inv_out_of_10))
+        if overall_mean >= baseline:
+            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(overall_mean, inv_out_of_10))
         
-        elif baseline - 1 < mean_prominence < baseline + 1:
+        elif baseline - 1 < overall_mean < baseline + 1:
             print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
         
         else:
-            print('Sample has passed. \n Severity of lines is {}, which gives the sample a score of {} out of 10'.format(mean_prominence, inv_out_of_10))
+            print('Sample has passed. \n Severity of lines is {}, which gives the sample a score of {} out of 10'.format(overall_mean, inv_out_of_10))
 
         return inv_out_of_10
 
