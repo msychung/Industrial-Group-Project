@@ -12,7 +12,7 @@ The aim of this project is to characterise defects in PEM fuel cell materials pr
 The analysis code seeks to provide an efficient testing process for batch samples, through automated image processing and analysis.
 
 ## Data Collection
-The testing process requires samples of nonwoven batches to be scanned in as images for analysis. In order to carry this out, an image scanner of suitable size and specifications must be obtained. Please ensure:
+The testing process requires samples of nonwoven batches to be scanned in as images for analysis. In order to carry this out, a flatbed image scanner of suitable size and specifications must be obtained. Please ensure:
 - The scanner is large enough to place an A4 sized sample flat
 - The scanner is capable of scanning at a resolution of 75dpi
 - Sample scans are saved in .jpeg format only
@@ -47,7 +47,7 @@ To install a package, enter the following in the command line:
 ```
 where `module-name` is the name of the module, e.g. `matplotlib`, `scikit-image`. These modules can all be entered in the same line, separated by spaces. 
 
-_N.B pip, a package manager for Python, should already be installed if using Python 3.4 and above. If necessary you can upgrade it to the most recent version through:_
+*N.B.* pip, a package manager for Python, should already be installed if using Python 3.4 and above. If necessary you can upgrade it to the most recent version through:
 ```
 > python -m pip install -U pip
 ```
