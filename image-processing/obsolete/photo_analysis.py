@@ -19,7 +19,6 @@ brightness2 = np.load('photo1b2_scan.npy')
 brightness3 = np.load('photo1b3_scan.npy')
 
 
-
 #print(np.shape(brightness1), np.shape(brightness2), np.shape(brightness3))
 #this results in (3024, 4032) (3024, 4032) (3024, 4032)
 '''
