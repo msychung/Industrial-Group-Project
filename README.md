@@ -23,15 +23,15 @@ Ensure you have the following prerequisites on your development machine:
   * Linux: Press "Ctrl+Alt+T"
 
 The following Python packages will also require installation before use of the software:
-- numpy
-- scipy
-- scikit-image
-- pathlib
-- matplotlib
-- os
-- sys
-- glob
-- warnings
+- `numpy`
+- `scipy`
+- `scikit-image`
+- `pathlib`
+- `matplotlib`
+- `os`
+- `sys`
+- `glob`
+- `warnings`
 ---
 Package installation is carried out in the command line, a text interface which takes in user commands and passes them to a device's operating system.
 To install a package, enter the following in the command line:
