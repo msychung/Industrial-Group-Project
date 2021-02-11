@@ -133,7 +133,7 @@ class UserInterface():
             self.input_view_plot()
 
     def input_baseline(self):
-        baseline = input('\nWhat severity is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 6 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nRespond "info" for more information \nEnter Value: ')    #got rid of divide by 2 for now
+        baseline = input('\nWhat severity is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 7.5 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nRespond "info" for more information \nEnter Value: ')    #got rid of divide by 2 for now
         
         if baseline.isnumeric():
             return int(baseline)

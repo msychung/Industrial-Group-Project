@@ -191,17 +191,17 @@ class Linefinder:
         elif sampleType == 2:
 
             if grouping == 'high':
-                upper_bound = 10.9  # Highest mean prominence across data set
-                lower_bound = 4.00  # Lowest mean prominence across data set
+                upper_bound =  7.423330222880146 # Highest mean prominence across data set
+                lower_bound =  4.178781884770908 # Lowest mean prominence across data set
 
             elif grouping == 'low':
-                upper_bound = 10.9  # Highest mean prominence across data set
-                lower_bound = 4.00  # Lowest mean prominence across data set
+                upper_bound = 11.055903674518937  # Highest mean prominence across data set
+                lower_bound = 9.857283454404017 # Lowest mean prominence across data set
         
             else:
                 ''' if the grouping is set to all '''
-                upper_bound = 10.9
-                lower_bound =  4.00
+                upper_bound = 11.055903674518937
+                lower_bound =  4.178781884770908
 
         out_of_10 = ((self.total_mean - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
