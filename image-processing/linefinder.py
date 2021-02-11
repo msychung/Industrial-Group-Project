@@ -222,6 +222,8 @@ class Linefinder:
         Makes plots a bit more aesthetically pleasing
 
             INPUTS: self
+                    name - the name of the sample so it can be added to the plot to make it look nice
+                    score - the out of ten score so it can be added to the plot to make it look nice 
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
