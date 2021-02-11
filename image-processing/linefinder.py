@@ -64,7 +64,7 @@ class Linefinder:
 
             #it is probably sensible to also add a minimum prominence here, but more research is needed to find what this minimum should be 
                 
-            self.min_prominences = self.prominences[self.prominences>=self.mean_prominence]
+            self.min_prominences = self.prominences[self.prominences>=self.mean_prominences]
             
         else:     #if a value is given, then that value is used 
             self.min_prominences = min_prominences
@@ -75,7 +75,7 @@ class Linefinder:
         else:
             self.min_distance = distance
 
-        peaks = find_peaks(self.gauss_blur[self.row], distance=self.min_distance, prominence=self.min_prominences)[0] #this zero has to be here so only the peak positions are returned and not the extra information
+        peaks = find_peaks(self.gauss_blur[self.row], distance=self.min_distance, prominence=self.min_prominences)[0] 
         
         if np.array_equal(peaks, self.peak_positions):
             print('Note: the discovered peaks are the same with or without the specified exclusions')
@@ -179,23 +179,29 @@ class Linefinder:
                 upper_bound =  2.488888888888889   # Highest mean prominence across data set
                 lower_bound = 2.167   # Lowest mean prominence across data set
 
-            else:
+            elif grouping == 'low':
                 upper_bound = 5.661016949152542    # Highest mean prominence across data set
                 lower_bound =  4.530612244897959    # Lowest mean prominence across data set
+        
+            else:
+                ''' if the grouping is set to all '''
+                upper_bound = 5.661016949152542
+                lower_bound = 2.167 
         
         elif sampleType == 2:
 
             if grouping == 'high':
-                upper_bound = 10.9  # Highest mean prominence across data set
-                lower_bound = 4.00  # Lowest mean prominence across data set
+                upper_bound =  7.423330222880146 # Highest mean prominence across data set
+                lower_bound =  4.178781884770908 # Lowest mean prominence across data set
 
-            else:
-                upper_bound = 10.9  # Highest mean prominence across data set
-                lower_bound = 4.00  # Lowest mean prominence across data set
+            elif grouping == 'low':
+                upper_bound = 11.055903674518937  # Highest mean prominence across data set
+                lower_bound = 9.857283454404017 # Lowest mean prominence across data set
         
-        '''
-        For some extra accuracy, there are two random rows chosen in order to get a mean value for prominence 
-        '''
+            else:
+                ''' if the grouping is set to all '''
+                upper_bound = 11.055903674518937
+                lower_bound =  4.178781884770908
 
         out_of_10 = ((self.total_mean - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
@@ -211,20 +217,23 @@ class Linefinder:
 
         return inv_out_of_10
 
-    def plot_nice(self, name):
+    def plot_nice(self, name, score):
         '''
-        Makes plots a bit more aesthetic.
+        Makes plots a bit more aesthetically pleasing
 
             INPUTS: self
+                    name - the name of the sample so it can be added to the plot to make it look nice
+                    score - the out of ten score so it can be added to the plot to make it look nice 
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
         x = self.find_lines_with_exclusions(view_plot=False, distance=10, min_prominences=4)
 
+
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
         fig.suptitle('Results for {}:'.format(name))
 
-        txt = f"Score is 'some score' out of 10"   #need to replace this with inv_out_of_10
+        txt = "Score is {} out of 10".format(score)  
         fig.text(.5, .05, txt, ha='center')
        
         ax[0].imshow(self.gauss_blur, cmap='gray')
