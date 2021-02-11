@@ -11,8 +11,15 @@ The aim of this project is to characterise defects in PEM fuel cell materials pr
 
 The analysis code seeks to provide an efficient testing process for batch samples, through automated image processing and analysis.
 
+## Data Collection
+The testing process requires samples of nonwoven batches to be scanned in as images for analysis. In order to carry this out, an image scanner of suitable size and specifications must be obtained. Please ensure:
+- The scanner is large enough to place an A4 sized sample flat
+- The scanner is capable of scanning at a resolution of 75dpi
+- Sample scans are saved in .jpeg format only
+- Any obstructions, such as identification labels, are removed
+
 ## Getting Started
-These instructions will get you a copy of the project up and running on your local machine for personal use, as well as for testing and development purposes.
+These instructions outline a method to access a copy of the project, through installation and file execution on a local machine. This may be for personal use, or for testing and development purposes.
 
 ### Prerequisites
 Ensure you have the following prerequisites on your development machine:
@@ -51,6 +58,7 @@ If you have previously installed any of these packages, ensure you update to the
 ```
 You can also view a list of all installed python packages using `pip list`. 
 
+*N.B.* The `>` signifies the prompt in Windows terminal (this will be a `$` in Linux and macOS) - do not type this!
 ### Installation
 To download the relevant files:
 1) Navigate to the top of this repository
@@ -91,6 +99,8 @@ To run the software, you just need to run the `UI.py` file:
 ## Built With
 
 * [Python](https://github.com/python/cpython)
+  * [scikit-image](https://scikit-image.org/)
+  * [SciPy](https://docs.scipy.org/doc/scipy/reference/index.html#)
 
 
 ## Contribution
