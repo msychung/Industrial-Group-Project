@@ -117,7 +117,7 @@ class UserInterface():
     def input_sigma(self):
         sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring. Recommended value is 1: ") 
 
-        if sigma.isnumeric():   #currently checks for int, need to change this to float??
+        if sigma.isdigit():   #currently checks for int, need to change this to float??
             return int(sigma)
         
         else:
