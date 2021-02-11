@@ -6,10 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import ndimage
 from scipy.signal import find_peaks, peak_prominences
-
-'''
-ADD-INS - ADD IN A REPEATED FOR A DIFFERENT ROW, AND THEN CAN CHECK THE EXISTENCE OF A LINE BY CHECKING IF A MAXIMUM IS IN BOTH OF THE ROWS (Can expand to >2 rows)
-'''
+import warnings
+warnings.filterwarnings("ignore")
 
 class Linefinder:
     '''
@@ -39,16 +37,15 @@ class Linefinder:
         self.sigma = sigma
         self.row = row
         self.gauss_blur = ndimage.gaussian_filter(self.original, self.sigma)
-        self.peak_positions = find_peaks(self.gauss_blur[self.row])[0]
-        self.prominences = peak_prominences(self.gauss_blur[self.row], self.peak_positions)[0] 
-        self.mean_prominence = np.mean(self.prominences)
+        self.peak_positions = [find_peaks(row)[0] for row in self.gauss_blur]  #used list comprehension to turn from a normal list of peak positions of one row, to a list of lists of peak positions of every row
+        self.prominences = [peak_prominences(row, self.peak_positions[i])[0] for i, row in enumerate(self.gauss_blur)]
+        self.mean_prominences = [np.mean(prominence) for prominence in self.prominences]
+        self.total_mean = np.mean(self.mean_prominences) 
+        # self.row = np.mean(self.peak_positions, axis = 0)
+        # print(self.row)
 
     def find_lines_with_exclusions(self, view_plot = True, distance = None, min_prominences = None):
         '''
-    --- need to raise an error if inputs are neither integers nor booleans ---
-    find lines within the sample, excluding some of the peaks from the original find peaks method, in an attempt to make sure that peaks aren't found when there are no visible peaks --- 
-    in the sample 
-
         INPUTS:
         self
         view_plot - set True to view the output plot 
@@ -68,11 +65,9 @@ class Linefinder:
             #it is probably sensible to also add a minimum prominence here, but more research is needed to find what this minimum should be 
                 
             self.min_prominences = self.prominences[self.prominences>=self.mean_prominence]
-            print(self.min_prominences)
             
         else:     #if a value is given, then that value is used 
             self.min_prominences = min_prominences
-            print(self.min_prominences)
 
         if not distance:
             self.min_distance = len(self.gauss_blur[0])/100      #if no value is given, defaults to a hundredth of the total width of the sample 
@@ -161,7 +156,7 @@ class Linefinder:
 
             ax[2].plot(np.arange(0,np.size(self.gauss_blur[self.row]), 1), self.gauss_blur[self.row])
             ax[2].plot(self.peak_positions, row_selected[self.peak_positions], "x")
-            ax[2].vlines(x=self.peak_positions, color = 'red', ymin=heights, ymax=row_selected[self.peak_positions], linewidth=1)
+            ax[2].vlines(x=self.peak_positions, color = 'red', ymin=heights, ymax=row_selected[self.peak_positions], linewidth=0.5)
             ax[2].set(xlabel='', ylabel='', title = 'Peak Prominences')
 
             plt.show()
@@ -184,7 +179,7 @@ class Linefinder:
                 upper_bound =  2.488888888888889   # Highest mean prominence across data set
                 lower_bound = 2.167   # Lowest mean prominence across data set
 
-            else:   #grouping == 'low'
+            else:
                 upper_bound = 5.661016949152542    # Highest mean prominence across data set
                 lower_bound =  4.530612244897959    # Lowest mean prominence across data set
         
@@ -194,21 +189,25 @@ class Linefinder:
                 upper_bound = 10.9  # Highest mean prominence across data set
                 lower_bound = 4.00  # Lowest mean prominence across data set
 
-            else:   #grouping == 'low'
+            else:
                 upper_bound = 10.9  # Highest mean prominence across data set
                 lower_bound = 4.00  # Lowest mean prominence across data set
-    
-        out_of_10 = ((self.mean_prominence - lower_bound)/(upper_bound - lower_bound)) * 10
+        
+        '''
+        For some extra accuracy, there are two random rows chosen in order to get a mean value for prominence 
+        '''
+
+        out_of_10 = ((self.total_mean - lower_bound)/(upper_bound - lower_bound)) * 10
         inv_out_of_10 = 10 - out_of_10
         
-        if self.mean_prominence >= baseline:
-            print('Sample has failed, lines are too prominent for sample to be used \n Severity of lines is {}, which gives the sample a {} out of 10'.format(self.mean_prominence, inv_out_of_10))
+        if self.total_mean >= baseline:
+            print('   Sample has FAILED, lines are too prominent for sample to be used \n   Severity of lines is {}, which gives the sample a {} out of 10 \n'.format(self.total_mean, inv_out_of_10))
 
-        elif baseline - 1 < self.mean_prominence < baseline + 1:
-            print('Warning! This sample is very close to the pass/fail mark, an extra eye test is recommended!')
+        elif baseline - 1 < self.total_mean < baseline + 1:
+            print('   WARNING! This sample is very close to the pass/fail mark, an extra eye test is recommended! \n')
 
         else:
-            print('Sample has passed. Severity of lines is {}, which gives the sample a score of {} out of 10'.format(self.mean_prominence, inv_out_of_10))
+            print('   Sample has PASSED. Severity of lines is {}, which gives the sample a score of {} out of 10 \n'.format(self.total_mean, inv_out_of_10))
 
         return inv_out_of_10
 
@@ -223,7 +222,10 @@ class Linefinder:
         x = self.find_lines_with_exclusions(view_plot=False, distance=10, min_prominences=4)
 
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
-        fig.suptitle('Results for {}'.format(name))
+        fig.suptitle('Results for {}:'.format(name))
+
+        txt = f"Score is 'some score' out of 10"   #need to replace this with inv_out_of_10
+        fig.text(.5, .05, txt, ha='center')
        
         ax[0].imshow(self.gauss_blur, cmap='gray')
         ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
