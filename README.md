@@ -31,6 +31,7 @@ The following Python packages will also require installation before use of the s
 - os
 - sys
 - glob
+- warnings
 - Need to check for any other packages, esp. since code in development.
 ---
 Package installation is carried out in the command line, a text interface which takes in user commands and passes them to a device's operating system.
