@@ -186,7 +186,7 @@ class Linefinder:
             else:
                 ''' if the grouping is set to all '''
                 upper_bound = 5.661016949152542
-                lower_bound =  4.530612244897959
+                lower_bound = 2.167 
         
         elif sampleType == 2:
 

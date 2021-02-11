@@ -49,7 +49,7 @@ class UserInterface():
             self.input_sample()
     
     def input_grouping(self):
-        grouping = input(f"Does the folder contain scans of low or high areal weight sample? Enter 'low' or 'high' if you wish to test samples just based upon their areal weight, 'all' if you wish to test samples regardless of areal weight or help for more information: ").lower()
+        grouping = input(f"Does the folder contain scans of low or high areal weight sample? Enter 'low' or 'high' if you wish to test samples based upon their areal weight class and type, 'all' if you wish to test samples regardless of areal weight, and just on sample type (recommended) or help for more information: ").lower()
         if grouping in ('high', 'low', 'all'):
             return grouping
         if grouping == 'help':
@@ -73,11 +73,17 @@ class UserInterface():
             self.input_view_plot()
 
     def input_baseline(self):
-        baseline = input('\nWhat severity out of 10 is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 6 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nEnter Value: ')    #got rid of divide by 2 for now
+        baseline = input('\nWhat severity is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 6 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nRespond "info" for more information \nEnter Value: ')    #got rid of divide by 2 for now
         
         if baseline.isnumeric():
             return int(baseline)
         
+        elif baseline.lower() == 'info':
+            print('The method of finding severity of machine direction lines depends on the difference between the background light intensity value of the sample, and the value of  light intensity peaks - caused by machine direction lines.')
+            print('The average of this difference is then taken, across the entire sample. If this average is greater than a given number, the sample fails. If it is lower than the given number, the sample passes')
+            print('The above recommendations have been made based on the original samples that were sent to Lancaster University, and so different values may be more informative.')
+            print('In order to combat this, if the average value of a sample is close to this " pass/fail baseline", then a warning is shown.')
+            self.input_baseline()
         else:
             print("Invalid input. Please ensure a positive number is entered.\n")
             self.input_baseline()
