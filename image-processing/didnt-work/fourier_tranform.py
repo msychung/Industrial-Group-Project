@@ -10,7 +10,7 @@ from scipy import signal
 
 scan_gs_bird = np.load('scan_gs_bird.npy')
 scan_gs_sample2 = np.load('scan_gs_Sample2.npy')
-cropped_sample2 = scan_gs_sample2[0:4000,0:4000]
+cropped_sample2 = scan_gs_sample2[0:4000, 0:4000]
 
 scan_gs_sample2_FT = fft2(cropped_sample2)
 shifted_FT = fftshift(scan_gs_sample2_FT)
@@ -18,7 +18,6 @@ shifted_FT = fftshift(scan_gs_sample2_FT)
 window_width = 100
 one_d_window = np.hamming(len(scan_gs_sample2_FT))
 window = np.sqrt(np.dot(one_d_window,one_d_window.T)) ** window_width
-
 
 
 low_passed_scan_FrequencyDomain = shifted_FT * window
@@ -37,7 +36,6 @@ ax[1].imshow(plottable_lps, cmap='binary')
 ax[1].set_title('low-pass-filter')
 ax[1].axis('off')
 plt.show()
-
 
 
 print(cropped_sample2 - plottable_lps)

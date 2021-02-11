@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-
 from skimage import data
 from skimage import color, morphology, io, feature
 from skimage.filters import try_all_threshold
@@ -38,4 +37,3 @@ ax[3].set_title('Thresholded Twice')
 ax[3].axis('off')
 
 plt.show()
-

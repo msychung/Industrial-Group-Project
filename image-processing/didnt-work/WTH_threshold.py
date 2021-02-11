@@ -10,8 +10,7 @@ scan_gs_sample2 = np.load('scan_gs_Sample2.npy')
 
 def plot_comparison(original, filtered, filter_name, threshold, threshold_name):
 
-    fig, ax = plt.subplots(ncols=3, figsize=(8, 4), sharex=True,
-                                   sharey=True)
+    fig, ax = plt.subplots(ncols=3, figsize=(8, 4), sharex=True, sharey=True)
     fig.suptitle('Testing Testing')                               
     ax[0].imshow(original, cmap='binary')
     ax[0].set_title('original')
@@ -25,8 +24,6 @@ def plot_comparison(original, filtered, filter_name, threshold, threshold_name):
     ax[2].set_title(threshold_name)
     ax[2].axis('off')
     ax[2].set_adjustable('box')
-    
-    
     
     plt.show()
 
