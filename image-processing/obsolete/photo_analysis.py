@@ -21,8 +21,9 @@ brightness3 = np.load('photo1b3_scan.npy')
 
 #print(np.shape(brightness1), np.shape(brightness2), np.shape(brightness3))
 #this results in (3024, 4032) (3024, 4032) (3024, 4032)
+
 '''
-all of the pictures are currently landscape, and the tests have been looking for vertical lines, so shape must be rotated
+All of the pictures are currently landscape, and the tests have been looking for vertical lines, so shape must be rotated
 '''
 
 rotated1 = transform.rotate(brightness1, 90)
@@ -37,7 +38,7 @@ cropped2 = rotated2[200:-800,800:-1000]
 cropped3 = rotated3[200:-800,800:-1000]
 
 '''
-this was used just to check the crop was to the correct dimensions
+This was used just to check the crop was to the correct dimensions
 
 
 fig, ax = plt.subplots(ncols=3, nrows=1)
@@ -52,12 +53,11 @@ ax[2].imshow(cropped3, cmap='gray')
 ax[2].set(xlabel='', ylabel = '', title = 'Brightness 3')
 
 plt.show()
-
 '''
 
 
 '''
-next, experimenting with increasing the contrast
+Next, experimenting with increasing the contrast
 '''
 c_min1, c_max1 = np.percentile(cropped1, (1,99)) #these are the paramters for the contrast
 contrasted1 = exposure.rescale_intensity(cropped1, in_range=(c_min1, c_max1))#returns the image with increased contrast 
@@ -67,8 +67,9 @@ contrasted2 = exposure.rescale_intensity(cropped2, in_range=(c_min1, c_max2))
 
 c_min3, c_max3 = np.percentile(cropped3,(1,99))
 contrasted3 = exposure.rescale_intensity(cropped3,in_range=(c_min3, c_max3))
+
 '''
-used to plot the increased contrast version of the images
+Used to plot the increased contrast version of the images
 fig, ax = plt.subplots(ncols=3, nrows=1)
 
 ax[0].imshow(contrasted1, cmap='gray')
@@ -85,14 +86,14 @@ plt.show()
 '''
 
 '''
-take the fourier transform of each of the images
+Take the Fourier transform of each of the images
 '''
 fourier1 = fftpack.fft2(contrasted1)
 fourier2 = fftpack.fft2(contrasted2)
 fourier3 = fftpack.fft2(contrasted3)
 
 '''
-plot the fourier transform against the original image, and then the detected lines 
+Plot the Fourier transform against the original image, and then the detected lines 
 
 fig, ax = plt.subplots(ncols=3,nrows=2,figsize =(8,2.5))
 
@@ -126,7 +127,7 @@ plt.show()
 '''
 
 '''
-use argrelextrema to find lines within the 1000th row of pixels
+Use argrelextrema to find lines within the 1000th row of pixels
 '''
 max_positions1 = argrelextrema(fourier1[1000], np.greater)
 max_positions2 = argrelextrema(fourier2[1000], np.greater)
@@ -134,7 +135,7 @@ max_positions3 = argrelextrema(fourier3[1000], np.greater)
 
 
 '''
-plot the detected lines from the max points of the FT
+Plot the detected lines from the max points of the FT
 fix, ax = plt.subplots(ncols=3, nrows=2, figsize=(8,2.5))
 ax[0][0].imshow(cropped1, cmap='gray')
 ax[0][0].set(xlabel='', ylabel = '', title = 'Original Sample')
@@ -148,7 +149,6 @@ ax[0][2].set(xlabel='', ylabel = '', title = 'Sample - WTH Transform')
 ax[1][0].imshow(cropped1,cmap='gray')
 ax[1][0].vlines(max_positions1,color = 'yellow', ymin=0, ymax=1000, linewidth = 1)
 ax[1][0].set(xlabel='', ylabel = '', title = 'Detected Lines')
-
 
 ax[1][1].imshow(cropped2,cmap='gray')
 ax[1][1].vlines(max_positions2,color = 'yellow', ymin=0, ymax=1000, linewidth=1)

@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 scans = []
-scans_folder = Path("scans_75dpi") #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
+scans_folder = Path("scans_75dpi")   #relative path to the file with the scans. Quite simple for my current setup but may not always be the case
 
 files_to_load = input('How many files would you like to scan in')
 int_files_to_load = int(files_to_load)
@@ -30,4 +30,4 @@ while i <= int_files_to_load:
 
 for scan in range(len(scans)):
     file = io.imread(fname=scans[scan], as_gray=True)
-    np.save('{}.npy'.format(scans[scan]), file, allow_pickle=True) #would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
+    np.save('{}.npy'.format(scans[scan]), file, allow_pickle=True)   #would be nice to change this so that things weren't saved as .jpeg.npy, however, it works! 
