@@ -13,9 +13,8 @@ warnings.filterwarnings("ignore")
 class UserInterface():
 
     def __init__(self):
-        # self.temp_path = r"C:\Users\Melissa\OneDrive - Lancaster University\University\Third Year\PHYS 355\Sample Data\Carbon Veil\Scans\75dpi" temporary path to avoid inputting all the time
-
-        print("*** Welcome to the User Interface for evaluating Machine Direction line severity in TFP nonwoven samples! *** \nPlease ensure sample scans are pre-arranged in folders, saved as .jpeg, and are of the same material type and areal weight class. You will be led through a series of prompts for which responses must be entered, before results are delivered. Type CTRL+C into the terminal to quit the program at any point. \n") #Type 'back' if you wish to return to a previous question and change your answer.
+        # D:\Tom\Documents\Physics\PHYS355\phys355_code\scans_75dpi <- my own personal path
+        print("*** Welcome to the User Interface for evaluating Machine Direction line severity in TFP nonwoven samples! *** \nPlease ensure sample scans are pre-arranged in folders, saved as .jpeg and are of the same material type and areal weight class. You will be led through a series of prompts for which responses must be entered, before results are delivered. Type CTRL+C into the terminal to quit the program at any point. \n") #Type 'back' if you wish to return to a previous question and change your answer.
 
         self.path = Path(self.get_path()) 
         self.material_types = {1: 'Carbon Veil', 2: 'Metal-Coated Carbon Veil'}  
@@ -28,7 +27,7 @@ class UserInterface():
             print("Using file explorer on Windows, open the folder containing the scans. In the navigation bar at the top, right click on the name of the folder, and then click 'copy address as text'. \nThe path should look something like 'C:\Documents\Bob\SampleScans\Carbon\LowAW'\n")
             return self.get_path()
 
-        elif not Path(response).is_dir() or not response:
+        elif (not Path(response).is_dir()) or (not response):
             print("Path does not exist, please try again.\n")
             return self.get_path()
 
@@ -44,24 +43,22 @@ class UserInterface():
         if sample_type in [str(n) for n in range(len(self.material_types) + 1)]:
             print("Please ensure samples are scanned at 75dpi, or the next closest possible resolution.\n")
             return int(sample_type)
-
-        # elif sample_type.lower() == "back":
-        #     self.get_path()
-            
+         
         else:
             print(f"Ensure an integer between 1 and {len(self.material_types)} inclusive is entered, please try again.\n")
             self.input_sample()
     
     def input_grouping(self):
-        grouping = input(f"Does the folder contain scans of low or high areal weight sample? Enter 'low' or 'high': ").lower()
-        if grouping in ('high', 'low'):
+        grouping = input(f"Does the folder contain scans of low or high areal weight sample? Enter 'low' or 'high' if you wish to test samples just based upon their areal weight, 'all' if you wish to test samples regardless of areal weight or help for more information: ").lower()
+        if grouping in ('high', 'low', 'all'):
             return grouping
-        
-        # elif grouping.lower() == "back":
-        #     self.input_sample()
-
+        if grouping == 'help':
+            print('Samples can either be tested against all samples of the same type, or just samples of a similar areal weight. \nThis will lead to a different result for the out of ten score for the sample')
+            print('Testing samples against all of the same type will give more information on the visible appearance of the machine direction lines')
+            print('As there is an apparent dependence of machine direction lines on areal weight, comparing samples in a similar areal weight class will give more information on how one sample compares to similar samples.\n')
+            self.input_grouping()
         else:
-            print("Response not recognised, please respond with either 'low' or 'high'.\n")
+            print("Response not recognised, please respond with either 'low', 'high', 'all', or help.\n")
             self.input_grouping()
     
     def input_view_plot(self):
@@ -70,21 +67,16 @@ class UserInterface():
         if view_plot in ('yes', 'no'):
             return view_plot
         
-        # elif view_plot.lower() == "back":
-        #     self.input_grouping()
 
         else:
             self.yesno_error()
             self.input_view_plot()
 
     def input_baseline(self):
-        baseline = input('\nWhat severity out of 10 is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 6 for Metal-Coated Carbon Veil \nEnter Value: ')    #got rid of divide by 2 for now
+        baseline = input('\nWhat severity out of 10 is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 6 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nEnter Value: ')    #got rid of divide by 2 for now
         
         if baseline.isnumeric():
             return int(baseline)
-        
-        # elif baseline.lower() == "back":
-        #     self.input_view_plot()
         
         else:
             print("Invalid input. Please ensure a positive number is entered.\n")
@@ -95,9 +87,6 @@ class UserInterface():
 
         if set_parameters in ('yes', 'no'):
             return set_parameters
-        
-        # elif set_parameters.lower() == "back":
-        #     self.input_baseline()
 
         else:
             self.yesno_error()
@@ -109,8 +98,7 @@ class UserInterface():
         if sigma.isnumeric():   #currently checks for int, might need to change this to float??
             return int(sigma)
         
-        # elif sigma.lower() == "back":
-        #     self.input_set_parameters()
+
         
         else:
             print("Invalid input. Please ensure a number is entered.\n")  
@@ -127,8 +115,6 @@ class UserInterface():
             
             return int(row)
         
-        # elif row.lower() == "back":
-        #     self.input_sigma()
         
         else:
             print("Invalid input. Please ensure a positive whole number is entered.\n")
@@ -189,8 +175,8 @@ class UserInterface():
 
             if view_plot == 'yes':
                 print(f'Result for Sample: {sample_name}')
-                finder.severity(baseline, grouping, sample_type)
-                finder.plot_nice(name=sample_name)
+                score = finder.severity(baseline, grouping, sample_type)
+                finder.plot_nice(sample_name, score)
 
             else:
                 print(f'Result for Sample: {sample_name}')
