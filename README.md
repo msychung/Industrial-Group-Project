@@ -32,7 +32,6 @@ The following Python packages will also require installation before use of the s
 - sys
 - glob
 - warnings
-- Need to check for any other packages, esp. since code in development.
 ---
 Package installation is carried out in the command line, a text interface which takes in user commands and passes them to a device's operating system.
 To install a package, enter the following in the command line:
@@ -53,20 +52,41 @@ If you have previously installed any of these packages, ensure you update to the
 You can also view a list of all installed python packages using `pip list`. 
 
 ### Installation
-To complete... pretty sure user can just download the linefinder.py and UI.py files straight to their machine then run them through cmd...
+To download the relevant files:
+1) Navigate to the top of this repository
+2) Click the green button with 'Code' and a drop-down arrow
+3) Click 'Download ZIP'
+4) The code will appear as the folder `Industrial-Group-Project` in your Downloads folder
+4) Extract (by right clicking) the ZIP to a chosen folder in your local device directory
 
-Also should all the Python package installation stuff go in here or Prerequisites..?
+*N.B.* The only files required to run the code are:
+- `linefinder.py` (Analysis Method to find MD Lines)
+- `UI.py` (User Interface)
+- `info.py` (Information about the program)
 
-The methods for this analysis are contained in `linefinder.py`, whilst the user interface can be found in `UI.py`. A database of the obtained results is collected in a .csv file, which can be opened and edited in Microsoft Excel. Finally, a collection of ineffective analysis methods can be found in the _didnt-work_ and _obsolete_ folders.
+A collection of ineffective analysis methods can be found in the _didnt-work_ and _obsolete_ folders.
 
 
 ### Running the Code
+Prior to running the code, please ensure the above prerequisites (installed Python and relevant packages) are met.
 
-Just run `UI.py` `__init__` ~~(this is a bad pun I will delete)~~
+To run the software, you just need to run the `UI.py` file:
+1) Open command line (terminal) for the appropriate operating system (See **Prerequisites**)
+3) Find the path containing the extracted ZIP folder e.g. `C:\Documents\Bob\SampleScans\Carbon\LowAW\Industrial-Group-Project'` 
+4) Change directory to the folder containing the `UI.py` file:
+   - Append `\image-processing` to the path found in 2), since this contains the UI.py file
+   - In command line, type `cd` then enter this new path in double quotes e.g:
+   ```
+   > cd "C:\Documents\Bob\SampleScans\Carbon\LowAW\Industrial-Group-Project\image-processing"
+   ```
+   - To run `UI.py`, enter:
+   ```
+   > python UI.py
+   ```
+   
+*N.B.* The `>` signifies the prompt in Windows terminal (this will be a `$` in Linux and macOS) - do not type this!
 
-Actually just remembered they need to cd to the right path... and make sure all their files are in the same folder... add instructions later, maybe after you finish the report yaknow..?
-
-Open the command line, then move to the directory containing all files via...
+(Just run `UI.py` `__init__` ~~(this is a bad pun I will delete)~~)
 
 ## Built With
 
