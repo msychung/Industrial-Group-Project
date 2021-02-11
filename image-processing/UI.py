@@ -37,60 +37,71 @@ class UserInterface():
         else:
             return response
 
+
     def yesno_error(self):
         print("Sorry, that response was not recognised, please enter either 'yes' or 'no', and ensure correct spelling.\n")
         
+
     def input_sample(self):
         sample_type = input("Type of Sample: ")
         
         if sample_type in [str(n) for n in range(len(self.material_types) + 1)]:
-            print("Please ensure samples are scanned at 75dpi, or the next closest possible resolution.\n")
+            print("Please ensure samples are scanned at 75dpi.\n")
             return int(sample_type)
          
         else:
             print(f"Ensure an integer between 1 and {len(self.material_types)} inclusive is entered, please try again.\n")
             self.input_sample()
     
+
     def input_grouping(self):
-        grouping = input(f"Does the folder contain scans of low or high areal weight sample? Enter 'low' or 'high' if you wish to test samples based upon their areal weight class and type, 'all' if you wish to test samples regardless of areal weight, and just on sample type (recommended) or help for more information: ").lower()
+        grouping = input(f"Does the folder contain scans of low or high areal weight samples? \nEnter 'low' or 'high' if you wish to test samples based upon their areal weight class. \nType 'all' if you wish to disregard areal weight considerations, and test only based on sample type (recommended). \nType 'help' for more information: ").lower()
+        
         if grouping in ('high', 'low', 'all'):
             return grouping
-        if grouping == 'help':
-            print('Samples can either be tested against all samples of the same type, or just samples of a similar areal weight. \nThis will lead to a different result for the out of ten score for the sample')
-            print('Testing samples against all of the same type will give more information on the visible appearance of the machine direction lines')
-            print('As there is an apparent dependence of machine direction lines on areal weight, comparing samples in a similar areal weight class will give more information on how one sample compares to similar samples.\n')
+
+        elif grouping == 'help':
+            print("\n***HELP***")
+            print("\nSamples can either be tested considering areal weights, or disregarding this and only testing by material type. \nThis will lead to different results for the out of 10 scores")
+            print("\nNote: Testing samples only by material type will give more information on the visible appearance of the machine direction lines")
+            print("\nMeanwhile, testing samples considering similar areal weight classes will give more information on how one sample compares to others, since there is an apparent dependence of machine direction lines on areal weight. \n")
             self.input_grouping()
+
         else:
-            print("Response not recognised, please respond with either 'low', 'high', 'all', or help.\n")
+            print("Response not recognised, please respond with either 'low', 'high', 'all', or 'help'.\n")
             self.input_grouping()
     
+
     def input_view_plot(self):
         view_plot = input("Would you like to view the output plot from the analysis software? ").lower()
 
         if view_plot in ('yes', 'no'):
             return view_plot
-        
 
         else:
             self.yesno_error()
             self.input_view_plot()
 
+
     def input_baseline(self):
-        baseline = input('\nWhat severity is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 7.5 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nRespond "info" for more information \nEnter Value: ')    #got rid of divide by 2 for now
+        baseline = input('\nWhat severity is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 7.5 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nEnter "info" for more information \nEnter value: ')
         
         if baseline.isnumeric():
             return int(baseline)
         
         elif baseline.lower() == 'info':
-            print('The method of finding severity of machine direction lines depends on the difference between the background light intensity value of the sample, and the value of  light intensity peaks - caused by machine direction lines.')
-            print('The average of this difference is then taken, across the entire sample. If this average is greater than a given number, the sample fails. If it is lower than the given number, the sample passes')
-            print('The above recommendations have been made based on the original samples that were sent to Lancaster University, and so different values may be more informative.')
-            print('In order to combat this, if the average value of a sample is close to this " pass/fail baseline", then a warning is shown.')
-            print('Changing this value will not change the overall score out of ten, and will just change the pass fail result.')
+            print("\n***INFO***")
+            print("The method of finding severity of machine direction lines depends on the difference between the background light intensity value of the sample, and the value of  light intensity peaks caused by machine direction lines.")
+            print("\nThe average of this difference is then taken across the entire sample, i.e. for all lines. If this average is greater than a given number, the sample fails. If it is lower than the given number, the sample passes")
+            print("\nThe above recommendations have been made based on the original samples available at the time, and so different values may be more informative.")
+            print("\nIn order to combat this, if the average value of a sample is close to this 'pass-fail baseline', then a warning is shown in the final results.")
+            print("\nChanging this value will not change the overall score out of ten, and will just change the pass-fail result.")
             self.input_baseline()
+
         else:
             print("Invalid input. Please ensure a positive number is entered.\n")
             self.input_baseline()
+
 
     def input_set_parameters(self):
         set_parameters = input("Would you like to use preset values or set your own parameters? ('yes' for presets, 'no' for custom parameters) ").lower()
@@ -102,18 +113,18 @@ class UserInterface():
             self.yesno_error()
             self.input_set_parameters()
 
+
     def input_sigma(self):
-        sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring. Recommended value is 1: ")     #and can be... what? what type of number can they input??
+        sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring. Recommended value is 1: ") 
 
-        if sigma.isnumeric():   #currently checks for int, might need to change this to float??
+        if sigma.isnumeric():   #currently checks for int, need to change this to float??
             return int(sigma)
-        
-
         
         else:
             print("Invalid input. Please ensure a number is entered.\n")  
             self.input_sigma()
     
+
     def input_row(self, scanned):
         row = input("Set row number of pixels to be analysed: ")
 
@@ -125,10 +136,10 @@ class UserInterface():
             
             return int(row)
         
-        
         else:
             print("Invalid input. Please ensure a positive whole number is entered.\n")
             self.input_row(scanned)
+
 
     def quit_program(self):
         end_program = input("Respond 'quit' if you have finished and would like to quit the program. \nOr, respond 'again' if you would like to run the program again: ").lower()
@@ -165,6 +176,7 @@ class UserInterface():
         sample_type = self.input_sample()
         grouping = self.input_grouping()
         baseline = self.input_baseline()
+
         print("\n**Please respond 'yes' or 'no' to the following questions:**")
         view_plot = self.input_view_plot()
         set_parameters = self.input_set_parameters()
