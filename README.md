@@ -29,23 +29,25 @@ The following Python packages will also require installation before use of the s
 - pathlib
 - matplotlib
 - os
+- sys
+- glob
 - Need to check for any other packages, esp. since code in development.
 ---
 Package installation is carried out in the command line, a text interface which takes in user commands and passes them to a device's operating system.
 To install a package, enter the following in the command line:
 ```
-$ python -m pip install module-name
+> python -m pip install module-name
 ```
 where `module-name` is the name of the module, e.g. `matplotlib`, `scikit-image`. These modules can all be entered in the same line, separated by spaces. 
 
 _N.B pip, a package manager for Python, should already be installed if using Python 3.4 and above. If necessary you can upgrade it to the most recent version through:_
 ```
-$ python -m pip install -U pip
+> python -m pip install -U pip
 ```
 
 If you have previously installed any of these packages, ensure you update to the most recent release via:
 ```
-$ pip install --upgrade module-name
+> pip install --upgrade module-name
 ```
 You can also view a list of all installed python packages using `pip list`. 
 
