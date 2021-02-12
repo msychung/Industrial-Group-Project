@@ -21,10 +21,12 @@ ax[0].set_axis_off()
 ax[1].imshow(np.log(1 + h),
              extent=[np.rad2deg(theta[-1]), np.rad2deg(theta[0]), d[-1], d[0]],
              cmap='binary', aspect=1/1.5)
+
 ax[1].set_title('Hough transform')
 ax[1].set_xlabel('Angles (degrees)')
 ax[1].set_ylabel('Distance (pixels)')
-ax[1].axis('image')
+ax[1].axis('Image')
+
 
 ax[2].imshow(sample_scan_gs, cmap='binary')
 origin = np.array((0, sample_scan_gs.shape[1]))

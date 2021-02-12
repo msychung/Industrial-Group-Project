@@ -8,8 +8,7 @@ import numpy as np
 
 scan_gs_sample = np.load('scan_gs_Sample2.npy')
 edges = feature.canny(scan_gs_sample, 2, 1, 25)
-lines = probabilistic_hough_line(edges, threshold=10, line_length=5,
-                                 line_gap=3)
+lines = probabilistic_hough_line(edges, threshold=10, line_length=5, line_gap=3)
 
 # Generating figure 2
 fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharex=True, sharey=True)
