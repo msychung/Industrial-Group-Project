@@ -24,6 +24,9 @@ class UserInterface():
         
 
     def get_path(self):
+        '''
+        Gets the path to the folder in which the user has stored scans of samples
+        '''
         response = input("Please specify the path to the folder containing the sample scan files. Enter 'help' for further explanation: ")
 
         if response.lower() == 'help':
@@ -39,10 +42,16 @@ class UserInterface():
 
 
     def yesno_error(self):
+        '''
+        there are multiple prompts with yes/no questions - this function is called when the response is not yes or no.
+        '''
         print("Sorry, that response was not recognised, please enter either 'yes' or 'no', and ensure correct spelling.\n")
         
 
     def input_sample(self):
+        '''
+        used to tell the system what "type" - material - the samples that are to be scanned are made from
+        '''
         sample_type = input("Type of Sample: ")
         
         if sample_type in [str(n) for n in range(len(self.material_types) + 1)]:
@@ -55,6 +64,12 @@ class UserInterface():
     
 
     def input_grouping(self):
+        '''
+        used to tell the system the areal weight grouping of the sample:
+        options are high, low, or all. 
+        all uses all data from that sample type, regardless of areal weight grouping
+        also allows for a "help" response that gives the user more information
+        '''
         grouping = input(f"Does the folder contain scans of low or high areal weight samples? \nEnter 'low' or 'high' if you wish to test samples based upon their areal weight class. \nType 'all' if you wish to disregard areal weight considerations, and test only based on sample type (recommended). \nType 'help' for more information: ").lower()
         
         if grouping in ('high', 'low', 'all'):
@@ -73,6 +88,10 @@ class UserInterface():
     
 
     def input_view_plot(self):
+        '''
+        allows the user to define whteher or not they want to see the output plot from the analysis software
+        whilst not recommened, it's still a nice addition that it felt remiss to delete
+        '''
         view_plot = input("Would you like to view the output plot from the analysis software? ").lower()
 
         if view_plot in ('yes', 'no'):
@@ -84,6 +103,12 @@ class UserInterface():
 
 
     def input_baseline(self):
+        '''
+        allows the user to tell the system what the pass fail boundary is for testing the samples
+        takes either the exact numerical value to be used, or "info" in which case the user is given more information
+        about what this value is, and the effect that is has. 
+
+        '''
         baseline = input('\nWhat severity is required to fail a sample? \nRecommendations: 4 for Carbon Veil, 7.5 for Metal-Coated Carbon Veil, when testing against all samples of the same type \nEnter "info" for more information \nEnter value: ')
         
         if baseline.isnumeric():
@@ -104,6 +129,10 @@ class UserInterface():
 
 
     def input_set_parameters(self):
+        '''
+        asks the user if they want to use the preset parameters (calculated by the Lancaster University team)
+        or if they would rather use their own custom values
+        '''
         set_parameters = input("Would you like to use preset values or set your own parameters? ('yes' for presets, 'no' for custom parameters) ").lower()
 
         if set_parameters in ('yes', 'no'):
@@ -115,18 +144,37 @@ class UserInterface():
 
 
     def input_sigma(self):
-        sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring. Recommended value is 1: ") 
+        '''
+        if a user chose to input custom parameters, this function allows them to change the sigma value of the guassian blur.
+        the user can also respond "info" to get more information
+        '''
+        sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring, or respond 'info' for more information. \nRecommended value is 1: ") 
 
-        if sigma.isdigit():   #currently checks for int, need to change this to float??
+        if sigma.isdigit():   
             return int(sigma)
         
+        elif sigma.lower() == 'info':
+            print('\n***INFO****')
+            print('A guassian blur is the result of blurring an image by convoluting it with a guassian function in order to remove excess detail, or noise.')
+            print('This process is similar to viewing the image through a translucent screen.')
+            print('The higher the sigma value, the higher the standard deviation of the guassian function. This increases the blurring effect.')
+            print('A higher sigma value can be though of like a thicker translucent screen. \n \n')
+            self.input_sigma()
         else:
             print("Invalid input. Please ensure a number is entered.\n")  
             self.input_sigma()
     
 
     def input_row(self, scanned):
-        row = input("Set row number of pixels to be analysed: ")
+        '''
+        if the usere chose to set there own parameters, they can choose a specifc row of the sample
+        this no longer has any impact on the final results, as they are obtained by looping over every row
+        it does however effect the plots:
+            the detected lines on this row only define the lines that are plotted
+            as the lines are plotted by finding the peaks on one row, and drawing a vertical line at those points
+
+        '''
+        row = input("Set row number of pixels to be analysed, and drawn on in the plot: ")
 
         if row.isnumeric():
 
@@ -142,6 +190,11 @@ class UserInterface():
 
 
     def quit_program(self):
+        '''
+        once the program has been ran through fully once, the user gets an option to run the program, or quit the program.
+        this is especially useful if you have multiple sample types to get through - you don't have to quit the program and start again
+    
+        '''
         end_program = input("Respond 'quit' if you have finished and would like to quit the program. \nOr, respond 'again' if you would like to run the program again: ").lower()
 
         if end_program == 'quit':
@@ -158,6 +211,11 @@ class UserInterface():
             
 
     def main(self):
+        '''
+        main is "main" function of the class. This fucntion goes through the stages of the process, calling all of the other functions.
+        main collects all of the user inputs, and then user those inputs when it accesses the "backend" calculator, the linefinder class.
+
+        '''
         no_of_files = len(glob.glob(f"{self.path}\*.jpeg"))
         print(f"{no_of_files} files added successfully.")
         
@@ -206,5 +264,9 @@ class UserInterface():
             
         self.quit_program()
 
+
+'''
+these lines make the program run! :) 
+'''
 run = UserInterface()
 run.main()

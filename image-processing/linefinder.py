@@ -11,14 +11,12 @@ warnings.filterwarnings("ignore")
 
 class Linefinder:
     '''
-    A class of different methods to hopefully find the machine direction lines in a sample nonwoven.
+    A class of different methods to find the machine direction lines in a sample nonwoven.
 
         INPUTS: 
         original - greyscale sample, should be a np array
         sigma - the sigma value of Gaussian Blur (standard deviation)
-        row - the single row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
-
-        Outputs vary with each function, however the view_plot input is present in all class functions. If this is set to True, then a plot will be displayed 
+        row - the single row of sample which is tested for lines when the sample is being plotted
     '''
     
     def __init__(self, original, sigma, row):
@@ -28,9 +26,14 @@ class Linefinder:
             INPUTS: 
             original - greyscale sample, should be a np array
             sigma - the sigma value of Gaussian Blur (standard deviation)
-            row - the row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
+            row - the single row of sample which is tested for lines when the sample is being plotted
 
-            A ValueError is raised if a row is selected which is out of the bounds of the sample
+            the initialisation function generates:
+                the blurred version of the sample,
+                the peak positions within the sample,
+                the prominences of said peaks,
+                the mean prominences of the peaks along one row,
+                the total mean across all of the rows of the sample, by taking the mean of the means. 
         '''
 
         self.original = original
@@ -41,11 +44,18 @@ class Linefinder:
         self.prominences = [peak_prominences(row, self.peak_positions[i])[0] for i, row in enumerate(self.gauss_blur)]
         self.mean_prominences = [np.mean(prominence) for prominence in self.prominences]
         self.total_mean = np.mean(self.mean_prominences) 
-        # self.row = np.mean(self.peak_positions, axis = 0)
-        # print(self.row)
+
 
     def find_lines_with_exclusions(self, view_plot = True, distance = None, min_prominences = None):
         '''
+        Finds all of the peaks within the sample, that meet certain criteria:
+            Peaks must have a prominence above that defined by min_prominences 
+            must have a larger distance than the value defined by distance 
+
+            Whilst these inputs can be booleans, this option is never used by the UserInterface, or the plot_nice function.
+                (plot_nice uses this function to find the lines that it plots)
+            and this was more implemented for testing.
+
         INPUTS:
         self
         view_plot - set True to view the output plot 
@@ -107,7 +117,9 @@ class Linefinder:
         return peaks
     
     def view_plot(self, blurred=False, all_peaks=False, prominences=False):
-        
+        '''
+        generic plotting function that can be used to plot a range of different figures, depending on the input.
+        '''
         if blurred:
             fig, ax = plt.subplots(ncols=3, nrows=1, figsize=(2.5,8))
             fig.suptitle('Effect of Gaussian Blur')
@@ -163,15 +175,22 @@ class Linefinder:
 
     def severity(self, baseline, grouping, sampleType):
         '''
+        severity does all of the calculating for the results shown by the UserInterface.
+
         Determines the severity of machine direction lines in a sample of a particular type of nonwoven.
         
             INPUTS:
             self
-            baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails. More testing needs to be done to determine exactly what this value should be
-            group - whether the sample is of a high or low areal weight
+            baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails. 
+            
+            grouping - the areal weight grouping of the sample. This is used to define the upper, and lower bounds that 
+                       are used to calculate the out of ten score for the sample.
+            
+            sampleType - the "type" - material used to make - the inputted sample. This also is used to define the
+                         upper alower bounds that calculate the out of ten score for the sample.
 
             RETURNS:
-            inv_out_of_10 - a score out of 10, with 1 being the worst and 10 being the best
+            inv_out_of_10 - the sanples score out of 10, with 1 being the worst and 10 being the best.
         '''
         if sampleType == 1:
 
@@ -219,7 +238,7 @@ class Linefinder:
 
     def plot_nice(self, name, score):
         '''
-        Makes plots a bit more aesthetically pleasing
+        Makes plots a bit more aesthetically pleasing, as well as including the score out of ten for the plotted sample
 
             INPUTS: self
                     name - the name of the sample so it can be added to the plot to make it look nice
@@ -227,7 +246,7 @@ class Linefinder:
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
-        x = self.find_lines_with_exclusions(view_plot=False, distance=10, min_prominences=4)
+        x = self.find_lines_with_exclusions(view_plot=False, distance=10, min_prominences=6)
 
 
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
