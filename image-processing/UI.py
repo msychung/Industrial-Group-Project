@@ -36,7 +36,6 @@ class UserInterface():
         '''
         Gets the path to the folder in which the user has stored scans of samples
         '''
-
         response = input("Please specify the path to the folder containing the sample scan files. Enter 'help' for further explanation: ")
 
         if response.lower() == 'help':
@@ -158,9 +157,9 @@ class UserInterface():
         If the user chooses to input their own custom values, this function prompts the user to input the sigma value of the Gaussian blur. There is also an 'info' option which displays further information to the user regarding the sigma value and the effect it has on results.
         '''
 
-        sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring. Recommended value is 1: ") 
+        sigma = input("Set sigma value of Gaussian blur to determine severity of image blurring, or enter 'info' for more information. Recommended value is 1: ") 
 
-        if sigma.isdigit():   #currently checks for int, need to change this to float??
+        if sigma.isdigit():   
             return int(sigma)
         
         elif sigma.lower() == 'info':

@@ -251,7 +251,7 @@ class Linefinder:
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
-        x = self.find_lines_with_exclusions(view_plot=False, min_distance=10, min_prominences=4)
+        x = self.find_lines_with_exclusions(view_plot=False, min_distance=10, min_prominences=6)
 
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
         fig.suptitle('Results for {}:'.format(name))
