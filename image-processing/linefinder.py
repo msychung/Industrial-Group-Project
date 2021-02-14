@@ -11,53 +11,58 @@ warnings.filterwarnings("ignore")
 
 class Linefinder:
     '''
-    A class of different methods to hopefully find the machine direction lines in a sample nonwoven.
+    A class of different methods to find machine direction lines in a sample nonwoven. Converts the sample image into an array of numbers, each representing pixels on greyscale, before carrying out a Gaussian blur on the array. Then finds peak positions (x co-ordinates on a pixel-intensity plot) and associated prominences (y co-ordinates on a pixel-intensity plot) for each of the peaks, before calculating a score. 
 
         INPUTS: 
         original - greyscale sample, should be a np array
         sigma - the sigma value of Gaussian Blur (standard deviation)
-        row - the single row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
-
-        Outputs vary with each function, however the view_plot input is present in all class functions. If this is set to True, then a plot will be displayed 
+        row - the single row of sample which is tested for lines when the sample is being plotted
     '''
     
-    def __init__(self, original, sigma, row):
+    def __init__(self, original, sigma, row = None):
         '''
-        Initialisation function of the class. 
+        Initialisation function of the class. The following attributes are always created for every instance of the class:
+
+        - a blurred version of the sample
+        - the peak positions within the sample
+        - the prominences of said peaks
+        - the mean prominences of the peaks along one row
+        - the total mean across all of the rows of the sample, by taking the mean of the means
         
             INPUTS: 
             original - greyscale sample, should be a np array
             sigma - the sigma value of Gaussian Blur (standard deviation)
             row - the row of sample which is tested for lines -> this leads to a large assumption that the sample is uniform, and may need to change 
-
-            A ValueError is raised if a row is selected which is out of the bounds of the sample
         '''
 
         self.original = original
         self.sigma = sigma
         self.row = row
         self.gauss_blur = ndimage.gaussian_filter(self.original, self.sigma)
-        self.peak_positions = [find_peaks(row)[0] for row in self.gauss_blur]  #used list comprehension to turn from a normal list of peak positions of one row, to a list of lists of peak positions of every row
+
+        '''The following allow looping the finding of peaks over every row in the sample, to gain more accurate results. List comprehension has been used to do this. E.g. in self.peak_position, what was previously a normal list containing the peak positions of one row, has now become a list of lists (e.g. [[1, 2, 3,], [2, 3, 4], [3, 4, 5]]) of the peak positions of every row'''
+        self.peak_positions = [find_peaks(row)[0] for row in self.gauss_blur] 
         self.prominences = [peak_prominences(row, self.peak_positions[i])[0] for i, row in enumerate(self.gauss_blur)]
         self.mean_prominences = [np.mean(prominence) for prominence in self.prominences]
         self.total_mean = np.mean(self.mean_prominences) 
-        # self.row = np.mean(self.peak_positions, axis = 0)
-        # print(self.row)
 
-    def find_lines_with_exclusions(self, view_plot = True, distance = None, min_prominences = None):
+    def find_lines_with_exclusions(self, view_plot = True, min_distance = None, min_prominences = None):
         '''
-        INPUTS:
-        self
-        view_plot - set True to view the output plot 
-        distance - the mninimum distance between peaks. Must be a boolean or an integer - if integer, this is used as the minimum distance, if boolean, 100th of the total width is used 
-        min_prominences - the min prominence needed for a peak to be counted. if an integer this is used, if a boolean then any prominence greater or equal to the mean is used 
+        Finds all of the peaks within the sample, that meet certain criteria:
+        - peaks must have a prominence above that defined by min_prominences (y-direction)
+        - peaks must have a larger distance than the value defined by min_distance (x-direction)
 
-        There must be at least one value for either distance or min_prominence, or ValueError will be raised 
+            INPUTS:
+            self
+            view_plot - set True to view the output plot 
+            min_distance - the minimum distance between peaks. Must be a boolean or an integer: if integer, this input is used as the minimum distance, if boolean, 100th of the total width is used 
+            min_prominences - the minimum prominence needed for a peak to be counted: if integer this input is used as the minimum prominence, if boolean then any prominence greater or equal to the mean is used 
 
-        OUTPUTS: 
-        fig - figure showing the blurred sample, the pixel values along the chosen rows, and the pixel value with marked peaks and lines drawn to show prominence, and the lines detected 
-        by this method on top of the original sample 
+            OUTPUTS: 
+            fig - figure showing the blurred sample, the pixel values along the chosen rows, and the pixel value with marked peaks and lines drawn to show prominence, and the lines detected by this method on top of the original sample 
 
+            RETURNS:
+            peaks - a list of peak positions along the row
         '''
         
         if not min_prominences: #if no value is given, then it takes prominences that are greater than the mean only 
@@ -69,11 +74,11 @@ class Linefinder:
         else:     #if a value is given, then that value is used 
             self.min_prominences = min_prominences
 
-        if not distance:
+        if not min_distance:
             self.min_distance = len(self.gauss_blur[0])/100      #if no value is given, defaults to a hundredth of the total width of the sample 
             
         else:
-            self.min_distance = distance
+            self.min_distance = min_distance
 
         peaks = find_peaks(self.gauss_blur[self.row], distance=self.min_distance, prominence=self.min_prominences)[0] 
         
@@ -107,6 +112,18 @@ class Linefinder:
         return peaks
     
     def view_plot(self, blurred=False, all_peaks=False, prominences=False):
+        '''
+        A single method to allow optional viewing of different plots. The input parameters are set to False by default, so user must selectively set different parameters to True in order to view.
+
+            INPUTS:
+            self
+            blurred - set True to view a plot showing the image after Gaussian blurring (created by self.gauss_blur = ndimage.gaussian_filter(self.original, self.sigma))
+            all_peaks - set True to view a plot showing
+            prominences - set True to view a plot showing
+
+            OUTPUTS: 
+            fig - figures showing the various plots
+        '''
         
         if blurred:
             fig, ax = plt.subplots(ncols=3, nrows=1, figsize=(2.5,8))
@@ -128,7 +145,7 @@ class Linefinder:
         
         if all_peaks:
             fig, ax = plt.subplots(ncols=3, nrows=1)
-            fig.suptitle('Detecting lines through Scipy find_peaks')
+            fig.suptitle('Detecting lines through SciPy find_peaks')
 
             ax[0].imshow(self.gauss_blur, cmap='gray')
             ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
@@ -163,50 +180,56 @@ class Linefinder:
 
     def severity(self, baseline, grouping, sampleType):
         '''
-        Determines the severity of machine direction lines in a sample of a particular type of nonwoven.
+        Determines the severity of machine direction lines (final score) in a sample of a particular type of nonwoven. Also outputs print statements shown in the User Interface.
         
             INPUTS:
             self
-            baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails. More testing needs to be done to determine exactly what this value should be
-            group - whether the sample is of a high or low areal weight
+
+            baseline - the upper bound for the average prominence - if it exceeds this baseline then the sample fails. More testing can to be done on each material type to adjust this value
+
+            grouping - the areal weight grouping of the sample. This is used to define the upper, and lower bounds that are used to calculate the out of ten score for the sample.
+
+            sampleType - the "type" (material) of the sample. This also is used to define the upper and lower bounds that calculate the scores for the sample.
 
             RETURNS:
             inv_out_of_10 - a score out of 10, with 1 being the worst and 10 being the best
+
+            Note: The following upper and lower bounds have been calculated from the 'best' and 'worst' of our received data set - these are subject to change as the data pool is enlarged
         '''
         if sampleType == 1:
 
             if grouping == 'high':
-                upper_bound =  2.488888888888889   # Highest mean prominence across data set
-                lower_bound = 2.167   # Lowest mean prominence across data set
+                upper_bound =  2.488888888888889   # Highest mean prominence across carbon veil high areal weight data set
+                lower_bound = 2.167   # Lowest mean prominence across carbon veil high areal weight data set
 
             elif grouping == 'low':
-                upper_bound = 5.661016949152542    # Highest mean prominence across data set
-                lower_bound =  4.530612244897959    # Lowest mean prominence across data set
+                upper_bound = 5.661016949152542    # Highest mean prominence across carbon veil low areal weight data set
+                lower_bound =  4.530612244897959    # Lowest mean prominence across carbon veil low areal weight data set
         
             else:
                 ''' if the grouping is set to all '''
-                upper_bound = 5.661016949152542
-                lower_bound = 2.167 
+                upper_bound = 5.661016949152542     # Take the highest of the high/low areal weight sets
+                lower_bound = 2.167     # Take the lowest of the high/low areal weight sets
         
         elif sampleType == 2:
 
             if grouping == 'high':
-                upper_bound =  7.423330222880146 # Highest mean prominence across data set
-                lower_bound =  4.178781884770908 # Lowest mean prominence across data set
+                upper_bound =  7.423330222880146 # Highest mean prominence across metal-coated carbon veil high areal weight data set
+                lower_bound =  4.178781884770908 # Lowest mean prominence across metal-coated carbon veil high areal weight data set
 
             elif grouping == 'low':
-                upper_bound = 11.055903674518937  # Highest mean prominence across data set
-                lower_bound = 9.857283454404017 # Lowest mean prominence across data set
+                upper_bound = 11.055903674518937  # Highest mean prominence across metal-coated carbon veil low areal weight data set
+                lower_bound = 9.857283454404017 # Lowest mean prominence across metal-coated carbon veil low areal weight data set
         
             else:
                 ''' if the grouping is set to all '''
-                upper_bound = 11.055903674518937
-                lower_bound =  4.178781884770908
+                upper_bound = 11.055903674518937    # Take the highest of the high/low areal weight sets
+                lower_bound =  4.178781884770908    # Take the highest of the high/low areal weight sets
 
-        out_of_10 = ((self.total_mean - lower_bound)/(upper_bound - lower_bound)) * 10
-        inv_out_of_10 = 10 - out_of_10
+        out_of_10 = ((self.total_mean - lower_bound)/(upper_bound - lower_bound)) * 10      # Scale the absolute score (total_mean) to a score out of 10
+        inv_out_of_10 = 10 - out_of_10      # Flip scaling so 0 is worst and 10 is best
         
-        if self.total_mean >= baseline:
+        if int(self.total_mean) >= baseline:
             print('   Sample has FAILED, lines are too prominent for sample to be used \n   Severity of lines is {}, which gives the sample a {} out of 10 \n'.format(self.total_mean, inv_out_of_10))
 
         elif baseline - 1 < self.total_mean < baseline + 1:
@@ -219,16 +242,16 @@ class Linefinder:
 
     def plot_nice(self, name, score):
         '''
-        Makes plots a bit more aesthetically pleasing
+        Makes plots a bit more aesthetically pleasing, as well as including the score out of ten for the plotted sample.
 
-            INPUTS: self
-                    name - the name of the sample so it can be added to the plot to make it look nice
-                    score - the out of ten score so it can be added to the plot to make it look nice 
+            INPUTS: 
+            self
+            name - the name of the sample so it can be added to the plot to make it look nice
+            score - the out of ten score so it can be added to the plot to make it look nice 
 
             OUTPUTS: a cleaner looking plot than that given by the other functions
         '''
-        x = self.find_lines_with_exclusions(view_plot=False, distance=10, min_prominences=4)
-
+        x = self.find_lines_with_exclusions(view_plot=False, min_distance=10, min_prominences=4)
 
         fig, ax = plt.subplots(ncols = 2, nrows = 1)
         fig.suptitle('Results for {}:'.format(name))
@@ -240,8 +263,13 @@ class Linefinder:
         ax[0].set(xlabel='', ylabel='', title = r'Blurred Sample, $\sigma$ = {}'.format(self.sigma))
 
         ax[1].imshow(self.original, cmap='gray')
-        ax[1].vlines(x=x, color = 'red', ymin=0, ymax=len(self.gauss_blur), linewidth=1)
+        ax[1].vlines(x=x, color = 'red', ymin=0, ymax=len(self.gauss_blur), linewidth=0.5)
 
         ax[1].set(xlabel='', ylabel='', title='Detected lines')
 
         plt.show()
+
+sample = "C:\\Users\\Melissa\\OneDrive - Lancaster University\\University\\Third Year\\PHYS 355\\Sample Data\\Carbon Veil\\Scans\\75dpi\\a.jpeg"
+scanned = io.imread(fname=sample, as_gray=True)
+miggy = Linefinder(scanned, 1, 100)
+miggy.plot_nice('a.jpeg', 1.2943857)
