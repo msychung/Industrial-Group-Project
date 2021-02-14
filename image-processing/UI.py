@@ -34,12 +34,12 @@ class UserInterface():
 
     def get_path(self):
         '''
-        Gets the path to the folder in which the user has stored scans of samples
+        Gets the path to the folder in which the user has stored scans of samples.
         '''
         response = input("Please specify the path to the folder containing the sample scan files. Enter 'help' for further explanation: ")
 
         if response.lower() == 'help':
-            print("Using file explorer on Windows, open the folder containing the scans. In the navigation bar at the top, right click on the name of the folder, and then click 'copy address as text'. \nThe path should look something like 'C:\Documents\Bob\SampleScans\Carbon\LowAW'\n")
+            print("Using file explorer on Windows, open the folder containing the scans. In the navigation bar at the top, right click on the name of the folder, and then click 'copy address as text'. \nThe path should look something like 'C:\Documents\Bob\SampleScans\Carbon\LowAW'.\n")
             return self.get_path()
 
         elif (not Path(response).is_dir()) or (not response):
@@ -126,7 +126,7 @@ class UserInterface():
         elif baseline.lower() == 'info':
             print("\n**INFO**")
             print("The method of finding severity of machine direction lines depends on the difference between the background light intensity value of the sample, and the value of  light intensity peaks caused by machine direction lines.")
-            print("\nThe average of this difference is then taken across the entire sample, i.e. for all lines. If this average is greater than a given number, the sample fails. If it is lower than the given number, the sample passes")
+            print("\nThe average of this difference is then taken across the entire sample, i.e. for all lines. If this average is greater than a given number, the sample fails. If it is lower than the given number, the sample passes.")
             print("\nThe above recommendations have been made based on the original samples available at the time, and so different values may be more informative.")
             print("\nIn order to combat this, if the average value of a sample is close to this 'pass-fail baseline', then a warning is shown in the final results.")
             print("\nChanging this value will not change the overall score out of ten, and will just change the pass-fail result.")
@@ -252,7 +252,6 @@ class UserInterface():
 
             if set_parameters == 'yes':
                 sigma = 1
-                # row = 250
             
             else:
                 sigma = self.input_sigma()
