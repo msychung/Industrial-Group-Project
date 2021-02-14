@@ -268,8 +268,3 @@ class Linefinder:
         ax[1].set(xlabel='', ylabel='', title='Detected lines')
 
         plt.show()
-
-sample = "C:\\Users\\Melissa\\OneDrive - Lancaster University\\University\\Third Year\\PHYS 355\\Sample Data\\Carbon Veil\\Scans\\75dpi\\a.jpeg"
-scanned = io.imread(fname=sample, as_gray=True)
-miggy = Linefinder(scanned, 1, 100)
-miggy.plot_nice('a.jpeg', 1.2943857)
